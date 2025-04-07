@@ -14,6 +14,7 @@ public class Blog
     
     [Required]
     public string Content { get; set; } = null!;
+    [StringLength(200)]
     public string? ImageUrl { get; set; } = "https://www.svgrepo.com/show/508699/landscape-placeholder.svg";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

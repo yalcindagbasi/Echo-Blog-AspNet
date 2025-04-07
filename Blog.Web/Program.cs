@@ -1,29 +1,37 @@
 using Blog.Web.Models.Repositories;
 using Blog.Web.Models.Repositories.Entities;
+using Blog.Web.Models.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 
-builder.Services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddIdentity<AppUser, AppRole>(options =>
     {
-        options.Password.RequireDigit = false; 
-        options.Password.RequireUppercase = true; 
-        options.Password.RequireLowercase = true; 
-        options.Password.RequireNonAlphanumeric = false; 
-        options.Password.RequiredLength = 6; 
+        options.Password.RequireDigit = false;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 6;
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<RoleManager<AppRole>>(); 
+builder.Services.AddScoped<UserManager<AppUser>>(); 
+builder.Services.AddScoped<SignInManager<AppUser>>(); 
+builder.Services.AddScoped<IRoleStore<AppRole>, RoleStore<AppRole, AppDbContext, Guid>>();
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Account/Login";
-    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.LoginPath = "/Auth/Login";
+    options.AccessDeniedPath = "/Auth/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.SlidingExpiration = true;
 });
@@ -50,10 +58,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication(); 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseSession(); 
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
