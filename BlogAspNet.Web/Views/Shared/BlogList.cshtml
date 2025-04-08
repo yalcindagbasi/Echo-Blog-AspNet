@@ -1,0 +1,27 @@
+@model List<BlogViewModel>
+
+@foreach (var blog in Model)
+{
+    <div class="card mb-3 shadow-sm" style="max-width: 540px;">
+        <a href="@Url.Action("Index", "Blog", new { blogId = blog.Id })" class="text-decoration-none text-dark">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="@(string.IsNullOrEmpty(blog.ImageUrl) ? "/images/default-placeholder.png" : blog.ImageUrl)"
+                         class="img-fluid rounded-start"
+                         alt="Blog Image"
+                         onerror="this.onerror=null; this.src='/images/default-placeholder.png';">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">@blog.Title</h5>
+                        <p class="card-text">
+                            @(blog.Content.Length > 200 ? blog.Content.Substring(0, 200) + "..." : blog.Content)
+                        </p>
+                        <p class="card-text"><small class="text-muted">📅 Oluşturulma: @blog.CreatedAt.ToString("dd MMM yyyy")</small></p>
+                        <p class="card-text"><small class="text-muted">✍️ Yazar: @blog.Author</small></p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+}

@@ -1,0 +1,62 @@
+@model BlogCreateViewModel
+@{
+    ViewData["Title"] = "Yeni Blog Oluştur";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Yeni Blog Oluştur</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Blog" asp-action="CreateBlog" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Başlık</label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="CategoryId" class="form-label">Kategori</label>
+                            <select asp-for="CategoryId" asp-items="Model.CategoryList" class="form-select">
+                                <option value="">Kategori Seçin</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">İçerik</label>
+                            <textarea asp-for="Content" class="form-control" rows="10"></textarea>
+                            <span asp-validation-for="Content" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="ImageUrl" class="form-label">Blog Görseli</label>
+                            <input asp-for="ImageUrl" type="file" class="form-control" accept="image/*" />
+                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-controller="Blog" asp-action="Index" class="btn btn-secondary me-md-2">İptal</a>
+                            <button type="submit" class="btn btn-primary">Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // İçerik editörü için basit bir zengin metin düzenleyicisi eklenebilir
+            // Örnek: WYSIWYG editör entegrasyonu
+        });
+    </script>
+}

@@ -1,0 +1,42 @@
+@model BlogViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <article>
+                <header class="mb-4">
+                    <h1 class="fw-bolder mb-1">@Model.Title</h1>
+                    <div class="text-muted fst-italic mb-2">
+                        @Model.CreatedAt.ToString("dd MMMM yyyy, HH:mm")
+                    </div>
+                    <div class="badge bg-secondary text-decoration-none mb-3">
+                        Kategori: @Model.Category
+                    </div>
+                </header>
+                
+                <figure class="mb-4 text-center">
+                    <img class="img-fluid rounded" src="@Model.ImageUrl" alt="@Model.Title" style="max-height: 400px; object-fit: cover;">
+                </figure>
+                
+                <section class="mb-5">
+                    @Html.Raw(Model.Content)
+                </section>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="text-muted">Yazar: @Model.Author</span>
+                    </div>
+                    <div>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left"></i> Tüm Bloglar
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</div>
