@@ -13,4 +13,5 @@ public interface IUserService
     Task<AppUser> GetUserById(Guid id);
     UserViewModel GetUserViewModel(AppUser user);
     Task<List<UserViewModel>> GetBestWriters();
+    
 }

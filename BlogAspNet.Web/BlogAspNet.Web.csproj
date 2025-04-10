@@ -20,4 +20,8 @@
     <AdditionalFiles Include="Views\User\Index.cshtml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Admin\Index.cshtml" />
+  </ItemGroup>
+
 </Project>

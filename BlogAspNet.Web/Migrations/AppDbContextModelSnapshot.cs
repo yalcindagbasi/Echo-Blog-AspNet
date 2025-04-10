@@ -94,6 +94,37 @@ namespace BlogAspNet.Web.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("BlogAspNet.Web.Models.Repositories.Comment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BlogId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("BlogAspNet.Web.Models.Repositories.Entities.AppRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -330,6 +361,25 @@ namespace BlogAspNet.Web.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BlogAspNet.Web.Models.Repositories.Comment", b =>
+                {
+                    b.HasOne("BlogAspNet.Web.Models.Repositories.Blog", "Blog")
+                        .WithMany("Comments")
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BlogAspNet.Web.Models.Repositories.Entities.AppUser", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("BlogAspNet.Web.Models.Repositories.Entities.AppRole", null)
@@ -381,6 +431,11 @@ namespace BlogAspNet.Web.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BlogAspNet.Web.Models.Repositories.Blog", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
             modelBuilder.Entity("BlogAspNet.Web.Models.Repositories.Category", b =>
                 {
                     b.Navigation("Blogs");
@@ -389,6 +444,8 @@ namespace BlogAspNet.Web.Migrations
             modelBuilder.Entity("BlogAspNet.Web.Models.Repositories.Entities.AppUser", b =>
                 {
                     b.Navigation("Blogs");
+
+                    b.Navigation("Comments");
                 });
 #pragma warning restore 612, 618
         }

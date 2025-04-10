@@ -34,4 +34,6 @@ public class Blog
 
     [ForeignKey("CategoryId")]
     public required Category Category { get; set; }
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
 }

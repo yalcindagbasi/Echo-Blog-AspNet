@@ -125,6 +125,18 @@
             </div>
         </div>
     }
-
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Comments Section -->
+            <partial name="Comments" model="ViewBag.Comments" />
+        </div>
+    </div>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
     
 </div>

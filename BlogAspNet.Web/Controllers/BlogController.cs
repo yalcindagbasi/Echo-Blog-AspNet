@@ -8,15 +8,28 @@ namespace BlogAspNet.Web.Controllers;
 public class BlogController : Controller
 {
     private readonly IBlogService blogService;
+    private readonly ICommentService commentService;
 
-    public BlogController(IBlogService blogService)
+    public BlogController(IBlogService blogService, ICommentService commentService)
     {
+        this.commentService = commentService;
         this.blogService = blogService;
     }
 
     public async Task<IActionResult> Index(Guid blogId)
     {
         var blog = await blogService.GetBlogById(blogId);
+        if (blog == null)
+        {
+            return NotFound();
+        }
+
+        var comments = await commentService.GetBlogCommentsAsync(blogId);
+        ViewBag.BlogId = blogId;
+        ViewBag.Comments = comments;
+
+        
+
         return View(blog);
     }
 

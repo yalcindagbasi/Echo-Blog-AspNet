@@ -16,4 +16,5 @@ public class AppUser: IdentityUser<Guid>
     [Required, MaxLength(100)]
     public string FullName { get; set; } = null!;
     public DateTime CreatedDate { get; set; }
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }
