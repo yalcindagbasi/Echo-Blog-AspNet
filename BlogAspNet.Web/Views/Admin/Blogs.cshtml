@@ -1,0 +1,186 @@
+@model List<BlogViewModel>
+
+@{
+    ViewData["Title"] = "Blog Yönetimi";
+    Layout = "_AdminLayout";
+    int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
+    int pageSize = ViewData["PageSize"] != null ? (int)ViewData["PageSize"] : 10;
+    int totalItems = ViewData["TotalItems"] != null ? (int)ViewData["TotalItems"] : 0;
+    double totalPages = ViewData["TotalPages"] != null ? (double)ViewData["TotalPages"] : 0;
+}
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-header bg-white border-0 py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="text-brown mb-0 fw-bold">Bloglar</h5>
+            <div>
+                <a asp-controller="Blog" asp-action="Create" class="btn btn-amber rounded-pill" target="_blank">
+                    <i class="bi bi-plus-circle me-1"></i> Yeni Blog Ekle
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+            </div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th width="10%">Görsel</th>
+                    <th width="30%">Blog Adı</th>
+                    <th width="15%">Kategori</th>
+                    <th width="15%">Yazar</th>
+                    <th width="10%">İstatistik</th>
+                    <th width="10%">Tarih</th>
+                    <th width="10%">İşlemler</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var blog in Model)
+                {
+                    <tr>
+                        <td>
+                            <img src="@blog.ImageUrl" alt="@blog.Title" class="img-thumbnail" style="width: 60px; height: 40px; object-fit: cover;" />
+                        </td>
+                        <td>
+                            <span class="d-inline-block text-truncate" style="max-width: 200px;">@blog.Title</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-light-amber text-brown rounded-pill">@blog.Category</span>
+                        </td>
+                        <td>@blog.Author</td>
+                        <td>
+                            <span class="badge bg-light-amber text-brown" data-bs-toggle="tooltip" data-bs-placement="top" title="Görüntülenme">
+                                <i class="bi bi-eye me-1"></i>@blog.ViewCount
+                            </span>
+                        </td>
+                        <td>@blog.CreatedAt.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            <div class="btn-group">
+                                <a class="btn btn-sm btn-outline-primary" href="/Blog/Index?blogId=@blog.Id" target="_blank" title="Görüntüle">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a class="btn btn-sm btn-outline-danger" href="#" onclick="confirmDelete('@blog.Id', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(blog.Title))')" title="Sil">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-4">
+                <i class="bi bi-file-earmark-x text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-2">Henüz hiç blog bulunmuyor.</p>
+            </div>
+        }
+
+        @if (totalPages > 1)
+        {
+            <nav aria-label="Blog sayfaları" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-controller="Admin" asp-action="Blogs" asp-route-page="@(currentPage - 1)" asp-route-pageSize="@pageSize" aria-label="Önceki">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+
+                    @{
+                        int startPage = Math.Max(1, currentPage - 2);
+                        int endPage = Math.Min((int)totalPages, startPage + 4);
+
+                        if (endPage - startPage < 4)
+                        {
+                            startPage = Math.Max(1, endPage - 4);
+                        }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link @(i == currentPage ? "bg-amber border-amber" : "")" asp-controller="Admin" asp-action="Blogs" asp-route-page="@i" asp-route-pageSize="@pageSize">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(currentPage == (int)totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-controller="Admin" asp-action="Blogs" asp-route-page="@(currentPage + 1)" asp-route-pageSize="@pageSize" aria-label="Sonraki">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+</div>
+
+<!-- Blog Silme Onay Modal -->
+<div class="modal fade" id="deleteBlogModal" tabindex="-1" aria-labelledby="deleteBlogModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteBlogModalLabel">Blog Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span id="deleteConfirmationText"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">İptal</button>
+                <button id="confirmDeleteButton" class="btn btn-danger rounded-pill">
+                    <i class="bi bi-trash me-1"></i>Sil
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, title) {
+            $('#deleteConfirmationText').text('"' + title + '" blogunu silmek istediğinize emin misiniz? Bu işlem geri alınamaz.');
+            $('#confirmDeleteButton').off('click').on('click', function() {
+                var form = $('<form method="post" action="/Admin/DeleteBlog"></form>');
+                form.append('<input type="hidden" name="blogId" value="' + id + '">');
+                $('body').append(form);
+                form.submit();
+                $('#deleteBlogModal').modal('hide');
+            });
+            $('#deleteBlogModal').modal('show');
+        }
+
+        $(document).ready(function() {
+            // Otomatik kapanan alertler için
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 5000);
+
+            // Tooltip etkinleştirme
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+}

@@ -7,4 +7,5 @@ public interface ICommentRepository
     Task<Comment> GetCommentByIdAsync(Guid commentId);
     Task DeleteCommentAsync(Comment comment);
     Task<List<Comment>> GetUserCommentsAsync(Guid userId);
+    Task<List<Comment>> GetAllCommentsAsync();
 }

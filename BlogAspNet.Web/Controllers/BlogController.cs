@@ -7,26 +7,26 @@ namespace BlogAspNet.Web.Controllers;
 
 public class BlogController : Controller
 {
-    private readonly IBlogService blogService;
-    private readonly ICommentService commentService;
+    private readonly IBlogService _blogService;
+    private readonly ICommentService _commentService;
 
     public BlogController(IBlogService blogService, ICommentService commentService)
     {
-        this.commentService = commentService;
-        this.blogService = blogService;
+        this._commentService = commentService;
+        this._blogService = blogService;
     }
 
     public async Task<IActionResult> Index(Guid blogId)
     {
-        var blog = await blogService.GetBlogById(blogId);
+        var blog = await _blogService.GetBlogById(blogId);
         if (blog == null)
         {
             return NotFound();
         }
 
-        await blogService.IncrementViewCountAsync(blogId);
+        await _blogService.IncrementViewCountAsync(blogId);
 
-        var comments = await commentService.GetBlogCommentsAsync(blogId);
+        var comments = await _commentService.GetBlogCommentsAsync(blogId);
         ViewBag.BlogId = blogId;
         ViewBag.Comments = comments;
 
@@ -35,9 +35,9 @@ public class BlogController : Controller
 
     [HttpGet]
     [Authorize]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        return View(blogService.CreateViewModel());
+        return View(await _blogService.CreateViewModel());
     }
 
     [HttpPost]
@@ -45,7 +45,7 @@ public class BlogController : Controller
     public async Task<IActionResult> Create(BlogCreateViewModel model)
     {
         if (!ModelState.IsValid)
-            return View(blogService.CreateViewModel());
+            return View(await _blogService.CreateViewModel());
 
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
@@ -63,11 +63,11 @@ public class BlogController : Controller
             model.ImageUrl = model.ImageUrlString;
         }
 
-        var success = await blogService.CreateBlog(model, Guid.Parse(userId));
+        var success = await _blogService.CreateBlog(model, Guid.Parse(userId));
         if (!success)
         {
             ModelState.AddModelError("", "Blog oluşturulurken hata oluştu.");
-            return View(blogService.CreateViewModel());
+            return View(await _blogService.CreateViewModel());
         }
 
         return RedirectToAction("Index", "Home");
@@ -92,6 +92,7 @@ public class BlogController : Controller
         return uniqueFileName;
     }
     
+    
     [Authorize]
     public async Task<IActionResult> UserBlogs()
     {
@@ -100,8 +101,14 @@ public class BlogController : Controller
         {
             return Unauthorized();
         }
+
+        var blogs = await _blogService.GetBlogsByUser(Guid.Parse(userId));
     
-        var blogs = await blogService.GetBlogsByUser(Guid.Parse(userId));
+        foreach (var blog in blogs)
+        {
+            blog.Comments = await _commentService.GetBlogCommentsAsync(blog.Id);
+        }
+    
         return View(blogs);
     }
     
@@ -110,7 +117,7 @@ public class BlogController : Controller
     public async Task<IActionResult> Delete(Guid blogId)
     {
         
-        var blog = await blogService.GetBlogById(blogId);
+        var blog = await _blogService.GetBlogById(blogId);
         if (blog == null)
         {
             return NotFound();
@@ -124,7 +131,7 @@ public class BlogController : Controller
         }
 
         
-        var success = await blogService.DeleteBlog(blogId);
+        var success = await _blogService.DeleteBlog(blogId);
         if (!success)
         {
             TempData["Error"] = "Blog silinirken bir hata oluştu.";
@@ -141,7 +148,7 @@ public class BlogController : Controller
     [Authorize]
     public async Task<IActionResult> Edit(Guid blogId)
     {
-        var blog = await blogService.GetBlogById(blogId);
+        var blog = await _blogService.GetBlogById(blogId);
         if (blog == null)
         {
             return NotFound();
@@ -152,7 +159,7 @@ public class BlogController : Controller
             return Forbid(); 
         }
         
-        return View(await blogService.GetBlogEditViewModel(blogId));
+        return View(await _blogService.GetBlogEditViewModel(blogId));
     }
     [HttpPost]
     [Authorize]
@@ -178,7 +185,7 @@ public class BlogController : Controller
             model.ImageUrl = model.ImageUrlString;
         }
 
-        var success = await blogService.UpdateBlog(model);
+        var success = await _blogService.UpdateBlog(model);
         if (!success)
         {
             ModelState.AddModelError("", "Blog güncellenirken hata oluştu.");
@@ -190,10 +197,9 @@ public class BlogController : Controller
     [HttpGet]
     public async Task<IActionResult> GetBlogsByCategory(int categoryId)
     {
-        // Eğer categoryId 0 ise (Hepsi kategorisi), tüm blogları getir
         var blogs = categoryId == 0 
-            ? await blogService.GetAllBlogs() 
-            : await blogService.GetBlogsByCategory(categoryId);
+            ? await _blogService.GetAllBlogs() 
+            : await _blogService.GetBlogsByCategory(categoryId);
     
         return PartialView("_BlogList", blogs);
     }
@@ -201,7 +207,7 @@ public class BlogController : Controller
     public async Task<IActionResult> Explore(int? categoryId, string? searchTerm, 
         string? sortBy, string? sortDirection, int page = 1, int pageSize = 9)
     {
-        var model = await blogService.GetFilteredBlogsAsync(
+        var model = await _blogService.GetFilteredBlogsAsync(
             categoryId, searchTerm, sortBy, sortDirection, page, pageSize);
         
         return View(model);

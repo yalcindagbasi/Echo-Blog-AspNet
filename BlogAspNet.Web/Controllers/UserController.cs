@@ -8,9 +8,12 @@ namespace BlogAspNet.Web.Controllers;
 public class UserController : Controller
 {
     private readonly IUserService _userService;
+    private readonly ICommentService _commentService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, ICommentService commentService)
     {
+        _commentService = commentService;
+    
         _userService = userService;
     }
 
@@ -19,18 +22,22 @@ public class UserController : Controller
         return View();
     }
 
-    public async Task<IActionResult> Profile()
+    public async Task<IActionResult> Profile(Guid id)
     {
-        //current user's id
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        var user = await _userService.GetUserById(Guid.Parse(userId));
-        if (user == null)
+        if (id == Guid.Empty)
         {
-            return NotFound();
+            id = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
         }
-
-        var model = _userService.GetUserViewModel(user);
-        return View(model);
+        try
+        {
+            var user = await _userService.GetUserById(id);
+            var userViewModel = await _userService.GetUserViewModelAsync(user, _commentService);
+            return View(userViewModel);
+        }
+        catch (Exception ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 
     [Authorize]

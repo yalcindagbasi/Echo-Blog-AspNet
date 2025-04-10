@@ -18,7 +18,7 @@ public class CommentService : ICommentService
     public async Task<List<CommentViewModel>> GetBlogCommentsAsync(Guid blogId)
     {
         var comments = await _commentRepository.GetBlogCommentsAsync(blogId);
-        return comments.Select(MapToViewModel).ToList();
+        return comments.Select(GetCommentViewModel).ToList();
     }
 
     public async Task<CommentViewModel> AddCommentAsync(CommentCreateViewModel model, Guid userId)
@@ -73,10 +73,10 @@ public class CommentService : ICommentService
     public async Task<List<CommentViewModel>> GetUserCommentsAsync(Guid userId)
     {
         var comments = await _commentRepository.GetUserCommentsAsync(userId);
-        return comments.Select(MapToViewModel).ToList();
+        return comments.Select(GetCommentViewModel).ToList();
     }
 
-    private CommentViewModel MapToViewModel(Comment comment)
+    private CommentViewModel GetCommentViewModel(Comment comment)
     {
         return new CommentViewModel
         {
@@ -89,5 +89,11 @@ public class CommentService : ICommentService
             UserProfilePhotoUrl = comment.User?.ProfilePhotoUrl,
             BlogId = comment.BlogId
         };
+    }
+
+    public async Task<List<CommentViewModel>> GetAllCommentsAsync()
+    {
+        var comments = await _commentRepository.GetAllCommentsAsync();
+        return comments.Select(GetCommentViewModel).ToList();
     }
 }

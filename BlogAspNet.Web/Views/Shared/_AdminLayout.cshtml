@@ -1,0 +1,45 @@
+@{
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="mb-4 fw-bold text-brown">Admin Paneli</h5>
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active bg-amber" : "")" 
+                               asp-controller="Admin" asp-action="Index">
+                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Users" ? "active bg-amber" : "")" 
+                               asp-controller="Admin" asp-action="Users">
+                                <i class="bi bi-people me-2"></i>Kullanıcılar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Blogs" ? "active bg-amber" : "")" 
+                               asp-controller="Admin" asp-action="Blogs">
+                                <i class="bi bi-file-earmark-text me-2"></i>Bloglar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Categories" ? "active bg-amber" : "")" 
+                               asp-controller="Admin" asp-action="Categories">
+                                <i class="bi bi-tag me-2"></i>Kategoriler
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+@RenderSection("Scripts", required: false)

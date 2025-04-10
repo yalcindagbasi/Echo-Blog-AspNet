@@ -1,0 +1,198 @@
+@model PageUserViewModel
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-header bg-white border-0 py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="text-brown mb-0 fw-bold">Kullanıcı Listesi</h5>
+            <div class="input-group" style="max-width: 300px;">
+                <input type="text" id="userSearch" class="form-control border-end-0" placeholder="Kullanıcı ara..." aria-label="Kullanıcı ara">
+                <span class="input-group-text bg-white border-start-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                <tr>
+                    <th class="py-3">Kullanıcı</th>
+                    <th class="py-3">E-Posta</th>
+                    <th class="py-3">Kayıt Tarihi</th>
+                    <th class="py-3">Blog Sayısı</th>
+                    <th class="py-3">İşlemler</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var user in Model.Users)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="@user.ProfilePhotoUrl" alt="@user.Username" class="rounded-circle me-3" width="40" height="40">
+                                <div>
+                                    <p class="fw-bold mb-0">@user.FullName</p>
+                                    <p class="text-muted small mb-0">@@@user.Username</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@user.Email</td>
+                        <td>@user.CreatedDate.ToString("dd.MM.yyyy")</td>
+                        <td>
+                                <span class="badge bg-light-amber text-brown rounded-pill">
+                                    @user.Blogs.Count
+                                </span>
+                        </td>
+                        <td>
+                            <div class="d-flex">
+                                <a asp-controller="User" asp-action="Profile" asp-route-id="@user.Id"
+                                   class="btn btn-sm btn-outline-secondary me-1" title="Profili Görüntüle">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal"
+                                   data-bs-target="#editRoleModal" data-user-id="@user.Id" title="Rol Düzenle">
+                                    <i class="bi bi-shield"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="confirmDeleteUser('@user.Id', '@user.Username')" title="Kullanıcıyı Sil">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white border-0 py-3">
+        <nav aria-label="Kullanıcı sayfaları">
+            <ul class="pagination justify-content-center mb-0">
+                @if (Model.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Users", "Admin", new { page = Model.CurrentPage - 1 })" tabindex="-1">Önceki</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Önceki</a>
+                    </li>
+                }
+
+                @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Users", "Admin", new { page = i })">@i</a>
+                    </li>
+                }
+
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Users", "Admin", new { page = Model.CurrentPage + 1 })">Sonraki</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-disabled="true">Sonraki</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Rol Düzenleme Modalı -->
+<div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRoleModalLabel">Kullanıcı Rolünü Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <form asp-controller="Admin" asp-action="UpdateUserRole" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="userId" name="userId" />
+                    <div class="mb-3">
+                        <label class="form-label">Roller</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="User" id="roleUser" name="roles">
+                            <label class="form-check-label" for="roleUser">
+                                Kullanıcı
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Admin" id="roleAdmin" name="roles">
+                            <label class="form-check-label" for="roleAdmin">
+                                Admin
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Editor" id="roleEditor" name="roles">
+                            <label class="form-check-label" for="roleEditor">
+                                Editör
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Kullanıcı silme onay işlemi
+    function confirmDeleteUser(userId, username) {
+        if (confirm(`${username} kullanıcısını silmek istediğinize emin misiniz?`)) {
+            window.location.href = `/Admin/DeleteUser?userId=${userId}`;
+        }
+    }
+
+    // Rol düzenleme modalı açıldığında kullanıcı ID'sini ayarla
+    document.addEventListener('DOMContentLoaded', function() {
+        const editRoleModal = document.getElementById('editRoleModal');
+        if (editRoleModal) {
+            editRoleModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const userId = button.getAttribute('data-user-id');
+                const userIdInput = document.getElementById('userId');
+                userIdInput.value = userId;
+
+                // Burada Ajax ile kullanıcının mevcut rollerini alıp checkbox'ları işaretleyebilirsiniz
+                fetch(`/Admin/GetUserRoles?userId=${userId}`)
+                    .then(response => response.json())
+                    .then(roles => {
+                        document.getElementById('roleUser').checked = roles.includes('User');
+                        document.getElementById('roleAdmin').checked = roles.includes('Admin');
+                        document.getElementById('roleEditor').checked = roles.includes('Editor');
+                    });
+            });
+        }
+    });
+
+    // Kullanıcı arama fonksiyonu
+    document.getElementById('userSearch').addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        tableRows.forEach(row => {
+            const fullName = row.querySelector('td:first-child p:first-child').textContent.toLowerCase();
+            const username = row.querySelector('td:first-child p:last-child').textContent.toLowerCase();
+            const email = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+
+            if (fullName.includes(searchValue) || username.includes(searchValue) || email.includes(searchValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>

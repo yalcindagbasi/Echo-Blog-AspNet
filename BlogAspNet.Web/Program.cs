@@ -33,6 +33,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -77,7 +79,19 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
+    var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
 
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        await roleManager.CreateAsync(new AppRole { Name = "Admin" });
+    }
+    var user = await userManager.FindByEmailAsync("yalndagbasi@gmail.com");
+    if (user != null && !await userManager.IsInRoleAsync(user, "Admin"))
+    {
+        await userManager.AddToRoleAsync(user, "Admin");
+    }
+    
     try
     {
         logger.LogInformation("Seed verisi yükleniyor...");

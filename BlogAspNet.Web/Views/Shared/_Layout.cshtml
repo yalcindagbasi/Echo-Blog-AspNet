@@ -13,7 +13,7 @@
     <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top py-3">
         <div class="container">
             <a class="navbar-brand fw-bold text-amber" asp-controller="Home" asp-action="Index">
-                <img src="~/images/logoo.png" alt="BlogApp Logo" height="35">
+                <img src="~/images/logoo.png" alt="Echo Logo" height="35">
             </a>
 
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
@@ -39,7 +39,7 @@
                     @if (User.Identity!.IsAuthenticated)
                     {
                         <li class="nav-item">
-                            <a class="nav-link rounded-pill px-3 btn-light-amber mb-2" asp-controller="Blog" asp-action="CreateBlog">
+                            <a class="nav-link rounded-pill px-3 btn-light-amber mb-2" asp-controller="Blog" asp-action="Create">
                                 <i class="bi bi-plus-circle me-2"></i>Yeni Blog
                             </a>
                         </li>
@@ -51,10 +51,18 @@
                     @if (User.Identity!.IsAuthenticated)
                     {
                         <li class="nav-item d-none d-lg-block me-2">
-                            <a class="btn btn-light-amber rounded-pill px-3" asp-controller="Blog" asp-action="CreateBlog">
+                            <a class="btn btn-light-amber rounded-pill px-3" asp-controller="Blog" asp-action="Create">
                                 <i class="bi bi-plus-circle me-2"></i>Yeni Blog
                             </a>
                         </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Index">
+                                    <i class="bi bi-shield"></i> Admin Paneli
+                                </a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Blog" asp-action="UserBlogs">
                                 <i class="bi bi-collection me-1"></i> Bloglarım
@@ -98,7 +106,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6 mb-4 mb-md-0">
-                <h5 class="text-white mb-3">BlogApp</h5>
+                <h5 class="text-white mb-3">Echo</h5>
                 <p class="text-white-50">Düşüncelerinizi paylaşın, hikayelerinizi anlatın.</p>
             </div>
             <div class="col-md-3 mb-4 mb-md-0">
@@ -118,7 +126,7 @@
             </div>
         </div>
         <div class="border-top border-secondary mt-4 pt-3">
-            <p class="text-center text-white-50 mb-0">&copy; 2025 - BlogApp - Tüm Hakları Saklıdır</p>
+            <p class="text-center text-white-50 mb-0">&copy; 2025 - Echo - Tüm Hakları Saklıdır</p>
         </div>
     </div>
 </footer>

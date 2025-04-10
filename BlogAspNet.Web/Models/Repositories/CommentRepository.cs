@@ -47,4 +47,12 @@ public class CommentRepository : ICommentRepository
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
+    public async Task<List<Comment>> GetAllCommentsAsync()
+    {
+        return await _context.Comments
+            .Include(c => c.User)
+            .Include(c => c.Blog)
+            .OrderByDescending(c => c.CreatedAt)
+            .ToListAsync();
+    }
 }

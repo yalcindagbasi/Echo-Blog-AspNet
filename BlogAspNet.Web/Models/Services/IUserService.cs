@@ -12,6 +12,16 @@ public interface IUserService
     Task<bool> IsUsernameExist(string username);
     Task<AppUser> GetUserById(Guid id);
     UserViewModel GetUserViewModel(AppUser user);
+    Task<UserViewModel> GetUserViewModelAsync(AppUser user, ICommentService commentService);
     Task<List<UserViewModel>> GetBestWriters();
     Task<bool> UpdateUserAsync(EditUserViewModel model);
+    Task<List<UserViewModel>> GetAllUsers();
+    Task<bool> UpdateUserRolesAsync(Guid userId, string[] roles);
+    Task<bool> AddToRolesAsync(AppUser user, string[] roles);
+    Task<bool> RemoveFromRolesAsync(AppUser user, List<string> roles);
+    Task<List<string>> GetRolesAsync(AppUser user);
+    Task<bool> DeleteAsync(AppUser user);
+    Task<bool> CreateRoleAsync(string roleName);
+    Task<PageUserViewModel> GetPaginatedUsersAsync(int page = 1, int pageSize = 10);
+
 }

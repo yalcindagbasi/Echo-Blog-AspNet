@@ -41,7 +41,7 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
         var user = await userService.GetUserById(userId);
         if (user == null) return false;
 
-        var category = _categoryRepository.GetCategory(model.CategoryId ?? 1);
+        var category = await _categoryRepository.GetByIdAsync(model.CategoryId ?? 1);
         if (category == null) return false;
 
         var newBlog = new Blog
@@ -63,12 +63,34 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
         return true;
     }
 
-    public BlogCreateViewModel CreateViewModel()
+    public async Task<BlogCreateViewModel> CreateViewModel()
     {
-        var categories = _categoryRepository.GetCategories();
+        var categories = await _categoryRepository.GetAllAsync();
         var createBlogViewModel = new BlogCreateViewModel();
         createBlogViewModel.CategoryList = new SelectList(categories, "Id", "Name");
         return createBlogViewModel;
+    }
+    public async Task<BlogViewModel> GetBlogViewModelAsync(Blog blog, ICommentService commentService)
+    {
+        var comments = await commentService.GetBlogCommentsAsync(blog.Id);
+    
+        var blogViewModel = new BlogViewModel
+        {
+            Id = blog.Id,
+            Title = blog.Title,
+            Content = blog.Content,
+            ImageUrl = blog.ImageUrl,
+            CreatedAt = blog.CreatedAt,
+            UpdatedAt = blog.UpdatedAt,
+            Author = blog.User.UserName,
+            AuthorImageUrl = blog.User.ProfilePhotoUrl,
+            AuthorId = blog.User.Id,
+            Category = blog.Category.Name,
+            CategoryId = blog.CategoryId,
+            ViewCount = blog.ViewCount,
+            Comments = comments
+        };
+        return blogViewModel;
     }
     public BlogViewModel GetBlogViewModel(Blog blog)
     {
@@ -126,7 +148,7 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
         var blog = await _blogRepository.GetBlogAsync(blogId); 
         if (blog == null) return null;
     
-        var categories = _categoryRepository.GetCategories();
+        var categories = await _categoryRepository.GetAllAsync();
     
         var editBlogViewModel = new BlogEditViewModel
         {
@@ -162,7 +184,7 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
     }
     public async Task<BlogFilterViewModel> GetFilteredBlogsAsync(int? categoryId, string? searchTerm, string? sortBy, string? sortDirection, int page, int pageSize)
     {
-        var categories = _categoryRepository.GetCategories();
+        var categories = await _categoryRepository.GetAllAsync();
     
         var sortOptions = new List<SelectListItem>
         {
@@ -193,7 +215,7 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
     {
         var blogs = await _blogRepository.GetBlogsAsync();
         var featuredBlogs = await _blogRepository.GetFeaturedBlogsAsync(featuredBlogCount);
-        var categories = _categoryRepository.GetCategories(); 
+        var categories = await _categoryRepository.GetAllAsync(); 
         var homeViewModel = new HomeViewModel
         {
             Blogs = blogs.Take(blogCount).Select(b => GetBlogViewModel(b)).ToList(),
@@ -206,6 +228,14 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
     public async Task IncrementViewCountAsync(Guid blogId)
     {
         await _blogRepository.IncrementViewCountAsync(blogId);
+    }
+    
+    public async Task<(List<BlogViewModel> blogs, int totalCount)> GetPaginatedBlogsAsync(int page, int pageSize)
+    {
+        var result = await _blogRepository.GetBlogsWithFilteringAsync(null, null, "date", "desc", page, pageSize);
+    
+        var blogs = result.Item1.Select(b => GetBlogViewModel(b)).ToList();
+        return (blogs, result.Item2);
     }
     
 }

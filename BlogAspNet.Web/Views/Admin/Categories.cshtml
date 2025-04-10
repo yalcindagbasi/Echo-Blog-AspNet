@@ -1,0 +1,128 @@
+@model List<Category>
+
+@{
+    ViewData["Title"] = "Kategori Yönetimi";
+    Layout = "_AdminLayout";
+}
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-header bg-white border-0 py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="text-brown mb-0 fw-bold">Kategoriler</h5>
+            <div>
+                <a href="#" class="btn btn-amber rounded-pill" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                    <i class="bi bi-plus-circle me-1"></i> Yeni Kategori Ekle
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+            </div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Kategori Adı</th>
+                    <th>Blog Sayısı</th>
+                    <th>İşlemler</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var category in Model)
+                {
+                    <tr>
+                        <td>@category.Id</td>
+                        <td>@category.Name</td>
+                        <td>@category.Blogs.Count</td>
+                        <td>
+                            <div class="btn-group">
+                                <a class="btn btn-sm btn-outline-danger" href="#"
+                                   onclick="confirmDelete(@category.Id, '@category.Name')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Yeni Kategori Ekleme Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCategoryModalLabel">Yeni Kategori Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <form asp-controller="Admin" asp-action="CreateCategory" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Kategori Adı</label>
+                        <input type="text" class="form-control" id="categoryName" name="name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Kategori Silme Onay Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteCategoryModalLabel">Kategori Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteConfirmationText"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <a id="confirmDeleteButton" href="#" class="btn btn-danger">Sil</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, name) {
+            $('#deleteConfirmationText').text('"' + name + '" kategorisini silmek istediğinize emin misiniz? Bu kategoriye ait tüm bloglar da silinecektir.');
+            $('#confirmDeleteButton').off('click').on('click', function() {
+                var form = $('<form method="post" action="/Admin/DeleteCategory"></form>');
+                form.append('<input type="hidden" name="id" value="' + id + '">');
+                $('body').append(form);
+                form.submit();
+                $('#deleteCategoryModal').modal('hide');
+            });
+            $('#deleteCategoryModal').modal('show');
+        }
+    </script>
+}

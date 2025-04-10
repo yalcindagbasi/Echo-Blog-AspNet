@@ -9,4 +9,5 @@ public interface ICommentService
     Task<bool> DeleteCommentAsync(Guid commentId, Guid userId);
     Task<bool> IsCommentOwnerAsync(Guid commentId, Guid userId);
     Task<List<CommentViewModel>> GetUserCommentsAsync(Guid userId);
+    Task<List<CommentViewModel>> GetAllCommentsAsync();
 }

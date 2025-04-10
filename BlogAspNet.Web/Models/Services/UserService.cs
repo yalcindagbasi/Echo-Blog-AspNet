@@ -70,7 +70,40 @@ public class UserService(
         var user = await _userManager.FindByNameAsync(username);
         return user != null;
     }
-
+public async Task<UserViewModel> GetUserViewModelAsync(AppUser user, ICommentService commentService)
+{
+    var comments = await commentService.GetUserCommentsAsync(user.Id);
+    
+    int totalViews = user.Blogs.Sum(b => b.ViewCount);
+    
+    var userViewModel = new UserViewModel
+    {
+        Id = user.Id,
+        Username = user.UserName,
+        Email = user.Email,
+        FullName = user.FullName,
+        CreatedDate = user.CreatedDate,
+        PhoneNumber = user.PhoneNumber,
+        BirthDate = user.BirthDate ?? DateTime.Now,
+        ProfilePhotoUrl = user.ProfilePhotoUrl,
+        AboutMe = user.AboutMe,
+        Blogs = user.Blogs.Select(b => new BlogViewModel
+        {
+            Id = b.Id,
+            Title = b.Title,
+            Content = b.Content,
+            ImageUrl = b.ImageUrl,
+            CreatedAt = b.CreatedAt,
+            UpdatedAt = b.UpdatedAt,
+            Category = b.Category?.Name,
+            CategoryId = b.CategoryId,
+            ViewCount = b.ViewCount
+        }).ToList(),
+        TotalComments = comments.Count,
+        TotalViews = totalViews
+    };
+    return userViewModel;
+}
     public UserViewModel GetUserViewModel(AppUser user)
     {
         var userViewModel = new UserViewModel
@@ -140,6 +173,84 @@ public class UserService(
     
         var result = await _userManager.UpdateAsync(user);
         return result.Succeeded;
+    }
+
+    public async Task<List<UserViewModel>> GetAllUsers()
+    {
+        var users = await _userManager.Users
+            .Include(u => u.Blogs)
+            .ThenInclude(b => b.Category)
+            .ToListAsync();
+
+        var userViewModels = new List<UserViewModel>();
+        foreach (var user in users)
+        {
+            userViewModels.Add(GetUserViewModel(user));
+        }
+
+        return userViewModels;
+    }
+    public async Task<List<string>> GetRolesAsync(AppUser user)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        return roles.ToList();
+    }
+    public async Task<bool> AddToRolesAsync(AppUser user, string[] roles)
+    {
+        var result = await _userManager.AddToRolesAsync(user, roles);
+        return result.Succeeded;
+    }
+    public async Task<bool> RemoveFromRolesAsync(AppUser user, List<string> roles)
+    {
+        var result = await _userManager.RemoveFromRolesAsync(user, roles);
+        return result.Succeeded;
+    }
+    public async Task<bool> UpdateUserRolesAsync(Guid userId, string[] roles)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return false;
+        }
+    
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+        var result = await _userManager.AddToRolesAsync(user, roles);
+        return result.Succeeded;
+    }
+    public async Task<bool> DeleteAsync(AppUser user)
+    {
+        var result = await _userManager.DeleteAsync(user);
+        return result.Succeeded;
+    }
+    public async Task<bool> CreateRoleAsync(string roleName)
+    {
+        var role = new AppRole { Name = roleName };
+        var result = await _roleManager.CreateAsync(role);
+        return result.Succeeded;
+    }
+    public async Task<PageUserViewModel> GetPaginatedUsersAsync(int page = 1, int pageSize = 10)
+    {
+        var query = _userManager.Users
+            .Include(u => u.Blogs)
+            .ThenInclude(b => b.Category);
+    
+        var totalCount = await query.CountAsync();
+    
+        var users = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+        
+        var userViewModels = users.Select(user => GetUserViewModel(user)).ToList();
+    
+        return new PageUserViewModel
+        {
+            Users = userViewModels,
+            CurrentPage = page,
+            PageSize = pageSize,
+            TotalItems = totalCount
+        };
     }
     
 }
