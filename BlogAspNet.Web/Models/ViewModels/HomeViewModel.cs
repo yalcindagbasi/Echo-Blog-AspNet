@@ -6,6 +6,7 @@ namespace BlogAspNet.Web.Models.Services.ViewModels;
 public class HomeViewModel
 {
     public List<BlogViewModel> Blogs { get; set; }
+    public List<BlogViewModel> FeaturedBlogs { get; set; }
     public List<Category> CategoryList { get; set; }
     public List<UserViewModel> BestWriters { get; set; }
 }

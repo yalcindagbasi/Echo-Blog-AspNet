@@ -10,10 +10,13 @@ public interface IBlogService
     Task<bool> DeleteBlog(Guid blogId);
     Task<List<BlogViewModel>> GetBlogsByUser(Guid userId);
     BlogCreateViewModel CreateViewModel();
-    Task<HomeViewModel> GetHomeViewModel();
     Task<BlogEditViewModel> GetBlogEditViewModel(Guid blogId);
     Task<bool> UpdateBlog(BlogEditViewModel model);
     Task<List<BlogViewModel>> GetBlogsByCategory(int categoryId);
+    Task<BlogFilterViewModel> GetFilteredBlogsAsync(int? categoryId, string? searchTerm, string? sortBy, string? sortDirection, int page, int pageSize);
+    Task<HomeViewModel> GetHomeViewModel(int blogCount = 6, int featuredBlogCount = 3);
+    Task IncrementViewCountAsync(Guid blogId);
+
 
 
 

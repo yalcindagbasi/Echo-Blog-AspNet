@@ -24,25 +24,25 @@ public class BlogController : Controller
             return NotFound();
         }
 
+        await blogService.IncrementViewCountAsync(blogId);
+
         var comments = await commentService.GetBlogCommentsAsync(blogId);
         ViewBag.BlogId = blogId;
         ViewBag.Comments = comments;
-
-        
 
         return View(blog);
     }
 
     [HttpGet]
     [Authorize]
-    public IActionResult CreateBlog()
+    public IActionResult Create()
     {
         return View(blogService.CreateViewModel());
     }
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> CreateBlog(BlogCreateViewModel model)
+    public async Task<IActionResult> Create(BlogCreateViewModel model)
     {
         if (!ModelState.IsValid)
             return View(blogService.CreateViewModel());
@@ -195,6 +195,15 @@ public class BlogController : Controller
             ? await blogService.GetAllBlogs() 
             : await blogService.GetBlogsByCategory(categoryId);
     
-        return PartialView("BlogList", blogs);
+        return PartialView("_BlogList", blogs);
+    }
+    [HttpGet]
+    public async Task<IActionResult> Explore(int? categoryId, string? searchTerm, 
+        string? sortBy, string? sortDirection, int page = 1, int pageSize = 9)
+    {
+        var model = await blogService.GetFilteredBlogsAsync(
+            categoryId, searchTerm, sortBy, sortDirection, page, pageSize);
+        
+        return View(model);
     }
 }

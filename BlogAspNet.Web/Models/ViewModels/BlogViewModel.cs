@@ -13,4 +13,6 @@ public class BlogViewModel
     public Guid AuthorId { get; set; }
     public string Category { get; set; } = null!;
     public int CategoryId { get; set; } 
+    public int ViewCount { get; set; }
+
 }

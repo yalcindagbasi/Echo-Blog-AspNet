@@ -83,22 +83,13 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
             Author = blog.User.UserName,
             AuthorImageUrl = blog.User.ProfilePhotoUrl,
             AuthorId = blog.User.Id,
-            Category = blog.Category.Name
+            Category = blog.Category.Name,
+            CategoryId = blog.CategoryId,
+            ViewCount = blog.ViewCount
         };
         return blogViewModel;
     }
-    public async Task<HomeViewModel> GetHomeViewModel()
-    {
-        var blogs = await _blogRepository.GetBlogsAsync();
-        var categories = _categoryRepository.GetCategories(); 
-        var homeViewModel = new HomeViewModel
-        {
-            Blogs = blogs.Select(b => GetBlogViewModel(b)).ToList(),
-            CategoryList = categories,
-            BestWriters = await GetBestWriters()
-        };
-        return homeViewModel;
-    }
+    
     public async Task<List<BlogViewModel>> GetBlogsByUser(Guid userId)
     {
         var blogs =  await _blogRepository.GetBlogsByUserAsync(userId);
@@ -169,7 +160,54 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
         var users = await userService.GetBestWriters();
         return users;
     }
+    public async Task<BlogFilterViewModel> GetFilteredBlogsAsync(int? categoryId, string? searchTerm, string? sortBy, string? sortDirection, int page, int pageSize)
+    {
+        var categories = _categoryRepository.GetCategories();
+    
+        var sortOptions = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "date", Text = "Tarihe Göre" },
+            new SelectListItem { Value = "title", Text = "Başlığa Göre" },
+            new SelectListItem { Value = "popular", Text = "Popülerliğe Göre" }
+        };
+    
+        var result = await _blogRepository.GetBlogsWithFilteringAsync(
+            categoryId, searchTerm, sortBy, sortDirection, page, pageSize);
+    
+        return new BlogFilterViewModel
+        {
+            CategoryId = categoryId,
+            SearchTerm = searchTerm,
+            SortBy = sortBy,
+            SortDirection = sortDirection,
+            Page = page,
+            PageSize = pageSize,
+            CategoryList = new SelectList(categories, "Id", "Name", categoryId),
+            SortOptions = new SelectList(sortOptions, "Value", "Text", sortBy),
+            Blogs = result.Item1.Select(b => GetBlogViewModel(b)).ToList(),
+            TotalBlogs = result.Item2
+        };
+    }
 
+    public async Task<HomeViewModel> GetHomeViewModel(int blogCount = 6, int featuredBlogCount = 3)
+    {
+        var blogs = await _blogRepository.GetBlogsAsync();
+        var featuredBlogs = await _blogRepository.GetFeaturedBlogsAsync(featuredBlogCount);
+        var categories = _categoryRepository.GetCategories(); 
+        var homeViewModel = new HomeViewModel
+        {
+            Blogs = blogs.Take(blogCount).Select(b => GetBlogViewModel(b)).ToList(),
+            CategoryList = categories,
+            BestWriters = await GetBestWriters(),
+            FeaturedBlogs = featuredBlogs.Select(b => GetBlogViewModel(b)).ToList(),
+        };
+        return homeViewModel;
+    }
+    public async Task IncrementViewCountAsync(Guid blogId)
+    {
+        await _blogRepository.IncrementViewCountAsync(blogId);
+    }
+    
 }
 
 

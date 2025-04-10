@@ -43,9 +43,9 @@
 @if (Model.Any())
 {
     <div class="text-center mt-5">
-        <button class="btn btn-amber rounded-pill px-4 py-2 shadow-sm">
+        <a asp-controller="Blog" asp-action="Explore" class="btn btn-amber rounded-pill px-4 py-2 shadow-sm">
             <i class="bi bi-plus-circle me-2"></i>Daha Fazla Blog
-        </button>
+        </a>
     </div>
 }
 else

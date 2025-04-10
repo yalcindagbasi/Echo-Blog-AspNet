@@ -31,6 +31,7 @@ public class Blog
     [Required] 
     public int CategoryId { get; set; }
     
+    public int ViewCount { get; set; }
 
     [ForeignKey("CategoryId")]
     public required Category Category { get; set; }

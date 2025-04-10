@@ -1,0 +1,98 @@
+@model EditUserViewModel
+
+@{
+    ViewBag.Title = "Profil Düzenle";
+    Layout = "_Layout";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-light-amber p-4 border-0">
+                    <h4 class="text-brown fw-bold mb-0">Profil Düzenle</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" asp-controller="User" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FullName" class="form-label fw-medium text-brown">Ad Soyad</label>
+                                <input asp-for="FullName" class="form-control rounded-3 border-amber-dark" />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Username" class="form-label fw-medium text-brown">Kullanıcı Adı</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-amber-dark">@@</span>
+                                    <input asp-for="Username" class="form-control rounded-end border-amber-dark" />
+                                </div>
+                                <span asp-validation-for="Username" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-medium text-brown">E-posta</label>
+                            <input asp-for="Email" class="form-control rounded-3 border-amber-dark" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BirthDate" class="form-label fw-medium text-brown">Doğum Tarihi</label>
+                            <input asp-for="BirthDate" class="form-control rounded-3 border-amber-dark" type="date" />
+                            <span asp-validation-for="BirthDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AboutMe" class="form-label fw-medium text-brown">Hakkımda</label>
+                            <textarea asp-for="AboutMe" rows="5" class="form-control rounded-3 border-amber-dark"></textarea>
+                            <span asp-validation-for="AboutMe" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-medium text-brown">Profil Fotoğrafı</label>
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="@Model.ProfilePhotoUrl" alt="Mevcut profil fotoğrafı" 
+                                     class="rounded-circle me-3" style="width: 64px; height: 64px; object-fit: cover;">
+                                <span class="text-muted">Mevcut profil fotoğrafı</span>
+                            </div>
+
+                            <div class="form-check form-check-inline mb-2">
+                                <input class="form-check-input" type="radio" name="imageSourceType" id="imageUpload" value="upload" checked>
+                                <label class="form-check-label" for="imageUpload">Dosya Yükle</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-2">
+                                <input class="form-check-input" type="radio" name="imageSourceType" id="imageUrl" value="url">
+                                <label class="form-check-label" for="imageUrl">URL Kullan</label>
+                            </div>
+
+                            <div id="uploadSection">
+                                <input type="file" name="ProfilePhotoFile" class="form-control rounded-3 border-amber-dark" accept="image/*" />
+                            </div>
+                            <div id="urlSection" style="display:none;">
+                                <input type="text" class="form-control rounded-3 border-amber-dark" name="ProfilePhotoUrl" 
+                                       value="@Model.ProfilePhotoUrl" placeholder="Profil fotoğrafı URL'si" />
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Profile" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="bi bi-x-circle me-2"></i>İptal
+                            </a>
+                            <button type="submit" class="btn btn-amber rounded-pill px-4">
+                                <i class="bi bi-check-circle me-2"></i>Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/image-source-select.js" asp-append-version="true"></script>
+}

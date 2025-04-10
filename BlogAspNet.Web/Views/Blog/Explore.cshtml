@@ -1,0 +1,110 @@
+@model BlogFilterViewModel
+
+@{
+    ViewData["Title"] = "Bloglar";
+}
+
+<div class="container py-5">
+    <h1 class="fw-bold text-brown mb-4">Tüm Bloglar</h1>
+    
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form id="filterForm" method="get" asp-action="Explore" class="row g-3">
+                <input type="hidden" name="page" id="pageInput" value="1" />
+                
+                <!-- Arama -->
+                <div class="col-md-4">
+                    <label asp-for="SearchTerm" class="form-label">Arama</label>
+                    <div class="input-group">
+                        <input asp-for="SearchTerm" class="form-control" placeholder="Blog başlığı veya içeriği ara...">
+                        <button type="submit" class="btn btn-amber"><i class="bi bi-search"></i></button>
+                    </div>
+                </div>
+                
+                <!-- Kategori -->
+                <div class="col-md-3">
+                    <label asp-for="CategoryId" class="form-label">Kategori</label>
+                    <select asp-for="CategoryId" asp-items="Model.CategoryList" class="form-select">
+                        <option value="">Tüm Kategoriler</option>
+                    </select>
+                </div>
+                
+                <!-- Sıralama -->
+                <div class="col-md-3">
+                    <label asp-for="SortBy" class="form-label">Sıralama</label>
+                    <select asp-for="SortBy" asp-items="Model.SortOptions" class="form-select">
+                        <option value="date">Tarihe Göre</option>
+                    </select>
+                </div>
+                
+                <!-- Yön -->
+                <div class="col-md-2">
+                    <label asp-for="SortDirection" class="form-label">Sıralama Yönü</label>
+                    <select asp-for="SortDirection" class="form-select">
+                        <option value="desc">Azalan</option>
+                        <option value="asc">Artan</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Blog Listesi -->
+    <div id="blogList">
+        <partial name="_BlogList" model="Model.Blogs" />
+    </div>
+
+    <!-- Sayfalama -->
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Sayfalama" class="mt-4">
+            <ul class="pagination justify-content-center">
+                @if (Model.Page > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(@(Model.Page - 1))">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                }
+                
+                @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                {
+                    <li class="page-item @(i == Model.Page ? "active" : "")">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(@i)">@i</a>
+                    </li>
+                }
+                
+                @if (Model.Page < Model.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(@(Model.Page + 1))">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterForm = document.getElementById('filterForm');
+            const selectElements = document.querySelectorAll('select');
+            
+            selectElements.forEach(select => {
+                select.addEventListener('change', function() {
+                    document.getElementById('pageInput').value = '1';
+                    filterForm.submit();
+                });
+            });
+        });
+        
+        function changePage(page) {
+            document.getElementById('pageInput').value = page;
+            document.getElementById('filterForm').submit();
+        }
+    </script>
+}

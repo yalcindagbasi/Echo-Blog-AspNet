@@ -123,6 +123,23 @@ public class UserService(
 
         return userViewModels;
     }
+    public async Task<bool> UpdateUserAsync(EditUserViewModel model)
+    {
+        var user = await _userManager.FindByIdAsync(model.Id.ToString());
+        if (user == null)
+        {
+            return false;
+        }
     
+        user.UserName = model.Username;
+        user.Email = model.Email;
+        user.FullName = model.FullName;
+        user.BirthDate = model.BirthDate;
+        user.AboutMe = model.AboutMe;
+        user.ProfilePhotoUrl = model.ProfilePhotoUrl;
+    
+        var result = await _userManager.UpdateAsync(user);
+        return result.Succeeded;
+    }
     
 }

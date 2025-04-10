@@ -19,8 +19,7 @@ namespace BlogAspNet.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            
-            return View(await _blogService.GetHomeViewModel());
+            return View(await _blogService.GetHomeViewModel()); 
         }
 
         public IActionResult Privacy()

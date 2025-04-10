@@ -8,20 +8,17 @@
 <div class="container my-5">
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            <!-- Blog başlık ve üst bilgiler -->
-            <div class="mb-4 text-center">
-                <span class="badge bg-light-amber text-brown rounded-pill px-3 py-2 mb-3">@Model.Category</span>
-                <h1 class="fw-bold text-brown display-5 mb-3">@Model.Title</h1>
-
-                <div class="d-flex justify-content-center align-items-center mb-4">
-                    <img src="@Model.AuthorImageUrl" class="rounded-circle border border-2 border-white shadow-sm"
-                         width="60" height="60" alt="@Model.Author" style="object-fit: cover;">
-                    <div class="ms-3 text-start">
-                        <p class="fw-bold mb-0">@Model.Author</p>
-                        <div class="text-muted d-flex align-items-center">
-                            <i class="bi bi-calendar-event me-2"></i>
-                            <span>@Model.CreatedAt.ToString("dd MMMM yyyy")</span>
-                        </div>
+            <!-- Blog başlık ve üst bilgiler bölümüne eklenecek -->
+            <div class="d-flex justify-content-center align-items-center mb-4">
+                <!-- Mevcut içerik -->
+                <div class="ms-3 text-start">
+                    <p class="fw-bold mb-0">@Model.Author</p>
+                    <div class="text-muted d-flex align-items-center">
+                        <i class="bi bi-calendar-event me-2"></i>
+                        <span>@Model.CreatedAt.ToString("dd MMMM yyyy")</span>
+                        <span class="mx-2">•</span>
+                        <i class="bi bi-eye me-1"></i>
+                        <span>@Model.ViewCount okunma</span>
                     </div>
                 </div>
             </div>
@@ -128,7 +125,7 @@
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <!-- Comments Section -->
-            <partial name="Comments" model="ViewBag.Comments" />
+            <partial name="_Comments" model="ViewBag.Comments" />
         </div>
     </div>
     @if (TempData["ErrorMessage"] != null)
