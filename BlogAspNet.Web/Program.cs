@@ -1,3 +1,4 @@
+using BlogAspNet.Web.Data;
 using BlogAspNet.Web.Models.Repositories;
 using BlogAspNet.Web.Models.Repositories.Entities;
 using BlogAspNet.Web.Models.Services;
@@ -72,4 +73,20 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        logger.LogInformation("Seed verisi yükleniyor...");
+        await SeedData.Initialize(services);
+        logger.LogInformation("Seed verisi başarıyla yüklendi");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Seed verisi oluşturulurken bir hata oluştu.");
+    }
+}
 app.Run();
