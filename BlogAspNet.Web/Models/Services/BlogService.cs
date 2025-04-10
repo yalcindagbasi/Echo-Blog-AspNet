@@ -49,12 +49,13 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
             Id = Guid.NewGuid(),
             Title = model.Title!,
             Content = model.Content!,
-            ImageUrl = model.ImageUrl,
+            ImageUrl = model.ImageUrl ?? "https://www.svgrepo.com/show/508699/landscape-placeholder.svg",
             CategoryId = category.Id,
             UserId = userId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Category = category,
+            IsDeleted = false,
             User = user
         };
 
@@ -80,6 +81,7 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
             CreatedAt = blog.CreatedAt,
             UpdatedAt = blog.UpdatedAt,
             Author = blog.User.UserName,
+            AuthorImageUrl = blog.User.ProfilePhotoUrl,
             AuthorId = blog.User.Id,
             Category = blog.Category.Name
         };
@@ -88,9 +90,12 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
     public async Task<HomeViewModel> GetHomeViewModel()
     {
         var blogs = await _blogRepository.GetBlogsAsync();
+        var categories = _categoryRepository.GetCategories(); 
         var homeViewModel = new HomeViewModel
         {
-            Blogs = blogs.Select(b => GetBlogViewModel(b)).ToList()
+            Blogs = blogs.Select(b => GetBlogViewModel(b)).ToList(),
+            CategoryList = categories,
+            BestWriters = await GetBestWriters()
         };
         return homeViewModel;
     }
@@ -112,6 +117,57 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
 
         await _blogRepository.DeleteBlogAsync(blog);
         return true;
+    }
+    
+    public async Task<List<BlogViewModel>> GetBlogsByCategory(int categoryId)
+    {
+        var blogs = await _blogRepository.GetBlogsByCategoryAsync(categoryId);
+        var blogViewModels = new List<BlogViewModel>();
+        foreach (var blog in blogs)
+        {
+            blogViewModels.Add(GetBlogViewModel(blog));
+        }
+        return blogViewModels;
+    }
+
+    public async Task<BlogEditViewModel> GetBlogEditViewModel(Guid blogId)
+    {
+        var blog = await _blogRepository.GetBlogAsync(blogId); 
+        if (blog == null) return null;
+    
+        var categories = _categoryRepository.GetCategories();
+    
+        var editBlogViewModel = new BlogEditViewModel
+        {
+            Id = blog.Id,
+            Title = blog.Title,
+            Content = blog.Content,
+            ImageUrl = blog.ImageUrl,
+            CategoryId = blog.CategoryId,
+            CategoryList = new SelectList(categories, "Id", "Name", blog.CategoryId)
+        };
+    
+        return editBlogViewModel;
+    }
+    
+    public async Task<bool> UpdateBlog(BlogEditViewModel model)
+    {
+        var blog = await _blogRepository.GetBlogAsync(model.Id);
+        if (blog == null) return false;
+
+        blog.Title = model.Title;
+        blog.Content = model.Content;
+        blog.ImageUrl = model.ImageUrl ?? blog.ImageUrl;
+        blog.CategoryId = model.CategoryId;
+        blog.UpdatedAt = DateTime.UtcNow;
+
+        await _blogRepository.UpdateBlogAsync(blog);
+        return true;
+    }
+    public async Task<List<UserViewModel>> GetBestWriters()
+    {
+        var users = await userService.GetBestWriters();
+        return users;
     }
 
 }

@@ -17,30 +17,49 @@ public class AuthController(IUserService userService) : Controller
         return View();
     }
     [HttpPost]
+    [HttpPost]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
         if (!ModelState.IsValid)
         {
             return View(model);
         }
-        if(userService.IsEmailExist(model.Email).Result)
+    
+        if(await userService.IsEmailExist(model.Email))
         {
             ModelState.AddModelError("Email","Bu e-posta adresi zaten kayıtlı.");
             return View(model);
         }
-        if(userService.IsUsernameExist(model.Username).Result)
+    
+        if(await userService.IsUsernameExist(model.Username))
         {
             ModelState.AddModelError("Username","Bu kullanıcı adı zaten kayıtlı.");
             return View(model);
         }
-        var result =  userService.RegisterUserAsync(model).Result;
-        if (result) 
+    
+        var imageSourceType = Request.Form["imageSourceType"].ToString();
+        if (imageSourceType == "upload" && model.ProfilePhotoFile != null)
+        {
+            string fileName = await SaveProfileImage(model.ProfilePhotoFile);
+            model.ProfilePhotoUrl = "/images/profiles/" + fileName;
+        }
+        else if (imageSourceType == "url" && !string.IsNullOrEmpty(Request.Form["ProfilePhotoUrl"].ToString()))
+        {
+            model.ProfilePhotoUrl = Request.Form["ProfilePhotoUrl"].ToString();
+        }
+        else
+        {
+            model.ProfilePhotoUrl = "/images/profiles/default-profile.png";
+        }
+    
+        var result = await userService.RegisterUserAsync(model);
+        if (result)
         {
             return RedirectToAction("Login");
         }
+    
         ModelState.AddModelError("","Kullanıcı oluşturulamadı.");
         return View(model);
-
     }
     [HttpGet]
     public IActionResult Login(string returnUrl = null)
@@ -72,5 +91,23 @@ public class AuthController(IUserService userService) : Controller
     {
         await userService.LogoutUserAsync();
         return RedirectToAction("Index", "Home");
+    }
+    private async Task<string> SaveProfileImage(IFormFile imageFile)
+    {
+        string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profiles");
+
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await imageFile.CopyToAsync(fileStream);
+        }
+
+        return uniqueFileName;
     }
 }

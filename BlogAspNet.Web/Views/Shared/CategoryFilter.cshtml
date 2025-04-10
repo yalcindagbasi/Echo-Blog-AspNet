@@ -1,0 +1,13 @@
+@model List<Category>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="fw-bold text-brown">Blogları Keşfet</h2>
+</div>
+<div class="category-filters mb-4">
+    <button class="btn btn-amber rounded-pill me-2 mb-2" data-category-id="0">Hepsi</button>
+    @foreach (var category in Model)
+    {
+        <button class="btn btn-light-amber rounded-pill me-2 mb-2" 
+                data-category-id="@category.Id">@category.Name</button>
+    }
+</div>

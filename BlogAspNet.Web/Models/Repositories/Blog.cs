@@ -15,13 +15,12 @@ public class Blog
     [Required]
     public string Content { get; set; } = null!;
 
-    [StringLength(200)]
-    public string? ImageUrl { get; set; } = "https://www.svgrepo.com/show/508699/landscape-placeholder.svg";
+    [StringLength(200)] public string ImageUrl { get; set; } = null!; 
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     
-    public bool IsDeleted { get; set; } = false;
+    public bool IsDeleted { get; set; } 
     public DateTime? DeletedAt { get; set; }
 
     [Required] 

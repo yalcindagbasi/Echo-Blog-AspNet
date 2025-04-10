@@ -1,0 +1,129 @@
+@model BlogEditViewModel
+@{
+    ViewData["Title"] = "Blog Düzenle";
+}
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-light-amber border-0 py-4">
+                    <h2 class="fw-bold text-brown mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>Blog Düzenle
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-controller="Blog" asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 py-2" role="alert"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Title" class="form-label fw-medium text-brown">Başlık</label>
+                            <input asp-for="Title" class="form-control form-control-lg rounded-3 border-amber-dark" placeholder="Blog başlığınızı girin" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="CategoryId" class="form-label fw-medium text-brown">Kategori</label>
+                            <select asp-for="CategoryId" asp-items="Model.CategoryList" class="form-select form-select-lg rounded-3 border-amber-dark">
+                                <option value="">Kategori seçiniz</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Content" class="form-label fw-medium text-brown">İçerik</label>
+                            <textarea asp-for="Content" class="form-control rounded-3 border-amber-dark" rows="12"
+                                      placeholder="Blog içeriğinizi HTML formatında yazabilirsiniz..."></textarea>
+                            <span asp-validation-for="Content" class="text-danger small"></span>
+                            <div class="form-text text-muted small mt-2">
+                                <i class="bi bi-info-circle me-1"></i>HTML etiketleri kullanarak içeriğinizi zenginleştirebilirsiniz.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-medium text-brown">Blog Görseli</label>
+
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div class="text-center mb-3 p-2 bg-light rounded-3">
+                                    <img src="@Model.ImageUrl" alt="Blog Görseli" class="img-fluid rounded-3 shadow-sm" style="max-height: 200px" />
+                                </div>
+                            }
+
+                            <div class="card border-amber-light rounded-3 mb-2">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="imageSourceType" id="keepImage" value="keep" checked>
+                                                <label class="form-check-label d-flex align-items-center" for="keepImage">
+                                                    <i class="bi bi-image me-2 text-amber fs-4"></i>
+                                                    <span>Mevcut Görseli Koru</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="imageSourceType" id="imageUpload" value="upload">
+                                                <label class="form-check-label d-flex align-items-center" for="imageUpload">
+                                                    <i class="bi bi-upload me-2 text-amber fs-4"></i>
+                                                    <span>Dosya Yükle</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="imageSourceType" id="imageUrl" value="url">
+                                                <label class="form-check-label d-flex align-items-center" for="imageUrl">
+                                                    <i class="bi bi-link-45deg me-2 text-amber fs-4"></i>
+                                                    <span>URL Kullan</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-3">
+
+                                    <div id="uploadSection" style="display:none;">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-amber-light">
+                                                <i class="bi bi-file-earmark-image text-amber"></i>
+                                            </span>
+                                            <input type="file" name="ImageFile" class="form-control border-amber-light" accept="image/*" />
+                                        </div>
+                                    </div>
+                                    <div id="urlSection" style="display:none;">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-amber-light">
+                                                <i class="bi bi-link text-amber"></i>
+                                            </span>
+                                            <input type="text" class="form-control border-amber-light" name="ImageUrlString" placeholder="Görsel URL'si girin" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-text text-muted small">
+                                <i class="bi bi-info-circle me-1"></i>Önerilen görsel boyutları: 1200x800 piksel veya 3:2 oranında
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-5">
+                            <a asp-controller="Blog" asp-action="UserBlogs" class="btn btn-light border rounded-pill px-4">
+                                <i class="bi bi-x-circle me-2"></i>İptal
+                            </a>
+                            <button type="submit" class="btn btn-amber rounded-pill px-5">
+                                <i class="bi bi-save me-2"></i>Değişiklikleri Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/image-source-select.js" asp-append-version="true"></script>
+}

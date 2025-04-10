@@ -1,33 +1,83 @@
 @model RegisterViewModel
 
-<h2>Register</h2>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Kayıt Ol</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Register" asp-controller="Auth" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="All" class="text-danger"></div>
 
-<form asp-action="Register" asp-controller="Auth" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="Username"></label>
-        <input asp-for="Username" class="form-control"/>
-        <span asp-validation-for="Username" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control"/>
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password"/>
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="BirthDate"></label>
-        <input asp-for="BirthDate" class="form-control" type="date"/>
-        <span asp-validation-for="BirthDate" class="text-danger"></span>
-    </div>
+                        <div class="mb-3">
+                            <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
+                            <input asp-for="Username" class="form-control"/>
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
 
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label">Ad Soyad</label>
+                            <input asp-for="FullName" class="form-control"/>
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">E-posta</label>
+                            <input asp-for="Email" class="form-control"/>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Şifre</label>
+                            <input asp-for="Password" class="form-control" type="password"/>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BirthDate" class="form-label">Doğum Tarihi</label>
+                            <input asp-for="BirthDate" class="form-control" type="date"/>
+                            <span asp-validation-for="BirthDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AboutMe" class="form-label">Hakkımda</label>
+                            <textarea asp-for="AboutMe" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="AboutMe" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Profil Fotoğrafı</label>
+                            <div class="form-check form-check-inline mb-2">
+                                <input class="form-check-input" type="radio" name="imageSourceType" id="imageUpload" value="upload" checked>
+                                <label class="form-check-label" for="imageUpload">Dosya Yükle</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-2">
+                                <input class="form-check-input" type="radio" name="imageSourceType" id="imageUrl" value="url">
+                                <label class="form-check-label" for="imageUrl">URL Kullan</label>
+                            </div>
+
+                            <div id="uploadSection">
+                                <input type="file" name="ProfilePhotoFile" class="form-control" accept="image/*" />
+                            </div>
+                            <div id="urlSection" style="display:none;">
+                                <input type="text" class="form-control" name="ProfilePhotoUrl" placeholder="Profil fotoğrafı URL'si" />
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-action="Login" asp-controller="Auth" class="btn btn-secondary me-md-2">Giriş Yap</a>
+                            <button type="submit" class="btn btn-primary">Kayıt Ol</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/image-source-select.js" asp-append-version="true"></script>
 }

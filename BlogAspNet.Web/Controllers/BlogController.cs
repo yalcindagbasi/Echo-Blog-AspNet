@@ -32,7 +32,7 @@ public class BlogController : Controller
     public async Task<IActionResult> CreateBlog(BlogCreateViewModel model)
     {
         if (!ModelState.IsValid)
-            return View(model);
+            return View(blogService.CreateViewModel());
 
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
@@ -40,14 +40,43 @@ public class BlogController : Controller
             return Unauthorized();
         }
 
+        if (model.ImageFile != null)
+        {
+            string fileName = await SaveImage(model.ImageFile);
+            model.ImageUrl = "/images/blogs/" + fileName;
+        }
+        else if (!string.IsNullOrEmpty(model.ImageUrlString))
+        {
+            model.ImageUrl = model.ImageUrlString;
+        }
+
         var success = await blogService.CreateBlog(model, Guid.Parse(userId));
         if (!success)
         {
             ModelState.AddModelError("", "Blog oluşturulurken hata oluştu.");
-            return View(model);
+            return View(blogService.CreateViewModel());
         }
 
         return RedirectToAction("Index", "Home");
+    }
+
+    private async Task<string> SaveImage(IFormFile imageFile)
+    {
+        string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "blogs");
+
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await imageFile.CopyToAsync(fileStream);
+        }
+
+        return uniqueFileName;
     }
     
     [Authorize]
@@ -94,5 +123,65 @@ public class BlogController : Controller
 
         
         return RedirectToAction("UserBlogs");
+    }
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> Edit(Guid blogId)
+    {
+        var blog = await blogService.GetBlogById(blogId);
+        if (blog == null)
+        {
+            return NotFound();
+        }
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || blog.AuthorId != Guid.Parse(userId))
+        {
+            return Forbid(); 
+        }
+        
+        return View(await blogService.GetBlogEditViewModel(blogId));
+    }
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Edit(BlogEditViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var imageSourceType = Request.Form["imageSourceType"].ToString();
+        if (imageSourceType == "upload" && model.ImageFile != null)
+        {
+            string fileName = await SaveImage(model.ImageFile);
+            model.ImageUrl = "/images/blogs/" + fileName;
+        }
+        else if (imageSourceType == "url" && !string.IsNullOrEmpty(model.ImageUrlString))
+        {
+            model.ImageUrl = model.ImageUrlString;
+        }
+
+        var success = await blogService.UpdateBlog(model);
+        if (!success)
+        {
+            ModelState.AddModelError("", "Blog güncellenirken hata oluştu.");
+            return View(model);
+        }
+
+        return RedirectToAction("UserBlogs");
+    }
+    [HttpGet]
+    public async Task<IActionResult> GetBlogsByCategory(int categoryId)
+    {
+        // Eğer categoryId 0 ise (Hepsi kategorisi), tüm blogları getir
+        var blogs = categoryId == 0 
+            ? await blogService.GetAllBlogs() 
+            : await blogService.GetBlogsByCategory(categoryId);
+    
+        return PartialView("BlogList", blogs);
     }
 }

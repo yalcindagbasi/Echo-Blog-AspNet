@@ -11,4 +11,6 @@ public interface IUserService
     Task<bool> IsEmailExist(string email);
     Task<bool> IsUsernameExist(string username);
     Task<AppUser> GetUserById(Guid id);
+    UserViewModel GetUserViewModel(AppUser user);
+    Task<List<UserViewModel>> GetBestWriters();
 }

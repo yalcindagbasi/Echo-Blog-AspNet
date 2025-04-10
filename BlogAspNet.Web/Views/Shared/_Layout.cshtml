@@ -3,79 +3,130 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BlogAspNet.Web</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - BlogApp</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BlogAspNet.Web.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BlogAspNet.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav">
+<body class="bg-warm">
+<header>
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-amber" asp-controller="Home" asp-action="Index">
+                <img src="~/images/logoo.png" alt="BlogApp Logo" height="35">
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarContent" aria-controls="navbarContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list text-amber"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Arama Çubuğu -->
+                <form class="d-flex mx-auto my-2 my-lg-0 position-relative" style="max-width: 400px;">
+                    <div class="input-group">
+                        <input class="form-control border-amber-light bg-light rounded-pill ps-3 pe-5"
+                               type="search" placeholder="Blog ara..." aria-label="Search">
+                        <button class="btn position-absolute end-0 top-0 bottom-0 px-3 bg-transparent text-amber" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Sol Menü -->
+                <ul class="navbar-nav me-auto d-lg-none mt-3">
+                    @if (User.Identity!.IsAuthenticated)
+                    {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link rounded-pill px-3 btn-light-amber mb-2" asp-controller="Blog" asp-action="CreateBlog">
+                                <i class="bi bi-plus-circle me-2"></i>Yeni Blog
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+                <!-- Sağ Menü -->
+                <ul class="navbar-nav ms-auto align-items-center">
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        <li class="nav-item d-none d-lg-block me-2">
+                            <a class="btn btn-light-amber rounded-pill px-3" asp-controller="Blog" asp-action="CreateBlog">
+                                <i class="bi bi-plus-circle me-2"></i>Yeni Blog
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-controller="Blog" asp-action="UserBlogs">
+                                <i class="bi bi-collection me-1"></i> Bloglarım
+                            </a>
                         </li>
-                        @if (User.Identity!.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="CreateBlog">Blog Oluştur</a>
-                            </li>
-                        }
-                    </ul>
-                    
-                    <ul class="navbar-nav ms-auto">
-                        @if (User.Identity!.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="UserBlogs">Bloglarım</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Profile">Profil</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Logout">Log Out</a>
-                            </li>
-                            
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Register">Register</a>
-                            </li>
-                        }
-                    </ul>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="User" asp-action="Profile">
+                                <i class="bi bi-person-circle me-1"></i> Profil
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Auth" asp-action="Logout" title="Çıkış Yap">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item me-2">
+                            <a class="btn btn-light-amber rounded-pill px-3" asp-controller="Auth" asp-action="Login">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Giriş
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-amber rounded-pill px-3" asp-controller="Auth" asp-action="Register">Kayıt Ol</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container py-5">
+    <main role="main">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="py-4 bg-brown text-white mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <h5 class="text-white mb-3">BlogApp</h5>
+                <p class="text-white-50">Düşüncelerinizi paylaşın, hikayelerinizi anlatın.</p>
+            </div>
+            <div class="col-md-3 mb-4 mb-md-0">
+                <h6 class="text-white mb-3">Bağlantılar</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a class="text-white-50 text-decoration-none hover-white" asp-controller="Home" asp-action="Index">Anasayfa</a></li>
+                    <li class="mb-2"><a class="text-white-50 text-decoration-none hover-white" asp-controller="Home" asp-action="Privacy">Gizlilik</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6 class="text-white mb-3">Sosyal Medya</h6>
+                <div class="d-flex">
+                    <a href="#" class="text-white-50 me-3 fs-5 hover-white"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-white-50 me-3 fs-5 hover-white"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-white-50 me-3 fs-5 hover-white"><i class="bi bi-github"></i></a>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - BlogAspNet.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+        <div class="border-top border-secondary mt-4 pt-3">
+            <p class="text-center text-white-50 mb-0">&copy; 2025 - BlogApp - Tüm Hakları Saklıdır</p>
+        </div>
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

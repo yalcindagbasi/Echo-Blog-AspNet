@@ -13,10 +13,23 @@ public class RegisterViewModel
     [Display(Name = "E-posta")]
     public string Email { get; set; } = null!;
     
+    [Required(ErrorMessage = "Ad alanı zorunludur")]
+    [Display(Name = "Adı Soyadı")]
+    [StringLength(100, ErrorMessage = "Adı Soyadı en az {2} karakter uzunluğunda olmalıdır.", MinimumLength = 3)]
+    public string FullName { get; set; } = null!;
+    
+    [Display(Name = "Hakkımda")]
+    [StringLength(4000)]
+    public string? AboutMe { get; set; }
+    
     [Required(ErrorMessage = "Şifre alanı zorunludur.")]
     [StringLength(100, ErrorMessage = "Şifre en az {2} karakter uzunluğunda olmalıdır.", MinimumLength = 3)]
     [DataType(DataType.Password)]
     [Display(Name = "Şifre")]
     public string Password { get; set; } = null!;
-    public DateTime BirthDate { get; set; }  
+    public DateTime BirthDate { get; set; }
+    [StringLength(400)]
+    public string? ProfilePhotoUrl { get; set; } 
+    public IFormFile? ProfilePhotoFile { get; set; }
+
 }

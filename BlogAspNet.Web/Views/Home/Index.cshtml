@@ -3,15 +3,23 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
-@if (Model != null && Model.Blogs != null)
-{
+<link rel="stylesheet" href="~/css/site.css" />
+<!-- Featured Blogs Slider -->
+<!-- CHANGE TO FEATURED BLOGS -->
+<section class="container py-4">
+    <partial name="FeaturedBlogs" model="Model.Blogs" />
+</section>
+
+<!-- Category Filters -->
+<section class="container py-3">
+    <partial name="CategoryFilter" model="Model.CategoryList"/>
+</section>
+
+<section class="container py-3">
     <partial name="BlogList" model="Model.Blogs" />
-}
-else
-{
-    <p>Henüz blog bulunmamaktadır.</p>
-}
+</section>
+<!-- Best Writers -->
+<section class="container py-5 my-5 bg-light-amber rounded-4">
+    <partial name="BestWriters" model="Model.BestWriters" />
+
+</section>

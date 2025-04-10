@@ -10,6 +10,8 @@ public class BlogCreateViewModel
     public string? Content { get; set; }
     public string? ImageUrl { get; set; } = "https://www.svgrepo.com/show/508699/landscape-placeholder.svg";
     public int? CategoryId { get; set; }
+    public IFormFile? ImageFile { get; set; }
+    public string? ImageUrlString { get; set; }
 
     [ValidateNever] public SelectList CategoryList { get; set; } = null!;
 }
