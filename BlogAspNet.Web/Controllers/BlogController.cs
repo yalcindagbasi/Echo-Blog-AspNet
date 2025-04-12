@@ -27,8 +27,11 @@ public class BlogController : Controller
         await _blogService.IncrementViewCountAsync(blogId);
 
         var comments = await _commentService.GetBlogCommentsAsync(blogId);
+        Console.WriteLine("Comment count: " + comments.Count);
+        blog.Comments = comments;
         ViewBag.BlogId = blogId;
-        ViewBag.Comments = comments;
+
+        ViewBag.RelatedBlogs = await _blogService.GetBlogsByCategory(blog.CategoryId,10);
 
         return View(blog);
     }
@@ -47,7 +50,7 @@ public class BlogController : Controller
         if (!ModelState.IsValid)
             return View(await _blogService.CreateViewModel());
 
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var userId = GetCurrentUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -63,7 +66,7 @@ public class BlogController : Controller
             model.ImageUrl = model.ImageUrlString;
         }
 
-        var success = await _blogService.CreateBlog(model, Guid.Parse(userId));
+        var success = await _blogService.CreateBlog(model, userId.Value);
         if (!success)
         {
             ModelState.AddModelError("", "Blog oluşturulurken hata oluştu.");
@@ -96,13 +99,13 @@ public class BlogController : Controller
     [Authorize]
     public async Task<IActionResult> UserBlogs()
     {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var userId = GetCurrentUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var blogs = await _blogService.GetBlogsByUser(Guid.Parse(userId));
+        var blogs = await _blogService.GetBlogsByUser(userId.Value);
     
         foreach (var blog in blogs)
         {
@@ -124,11 +127,12 @@ public class BlogController : Controller
         }
 
         
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null || blog.AuthorId != Guid.Parse(userId))
-        {
-            return Forbid(); 
-        }
+        var userId = GetCurrentUserId();
+        bool isAdmin = User.IsInRole("Admin");
+        bool isOwner = blog.AuthorId == userId;
+    
+        if (!isAdmin && !isOwner)
+            return Forbid();
 
         
         var success = await _blogService.DeleteBlog(blogId);
@@ -153,11 +157,12 @@ public class BlogController : Controller
         {
             return NotFound();
         }
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null || blog.AuthorId != Guid.Parse(userId))
-        {
-            return Forbid(); 
-        }
+        var userId = GetCurrentUserId();
+        bool isAdmin = User.IsInRole("Admin");
+        bool isOwner = blog.AuthorId == userId;
+    
+        if (!isAdmin && !isOwner)
+            return Forbid();
         
         return View(await _blogService.GetBlogEditViewModel(blogId));
     }
@@ -167,12 +172,17 @@ public class BlogController : Controller
     {
         if (!ModelState.IsValid)
             return View(model);
-
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null)
+        var blog = await _blogService.GetBlogById(model.Id);
+        if (blog == null)
         {
-            return Unauthorized();
+            return NotFound();
         }
+        var userId = GetCurrentUserId();
+        bool isAdmin = User.IsInRole("Admin");
+        bool isOwner = blog.AuthorId == userId;
+    
+        if (!isAdmin && !isOwner)
+            return Forbid();
 
         var imageSourceType = Request.Form["imageSourceType"].ToString();
         if (imageSourceType == "upload" && model.ImageFile != null)
@@ -192,24 +202,35 @@ public class BlogController : Controller
             return View(model);
         }
 
-        return RedirectToAction("UserBlogs");
+        return RedirectToAction("Index", new { blogId = model.Id });
     }
     [HttpGet]
-    public async Task<IActionResult> GetBlogsByCategory(int categoryId)
+    public async Task<IActionResult> GetBlogsByCategory(int categoryId, int limit = 6)
     {
         var blogs = categoryId == 0 
-            ? await _blogService.GetAllBlogs() 
-            : await _blogService.GetBlogsByCategory(categoryId);
+            ? await _blogService.GetAllBlogs(limit) 
+            : await _blogService.GetBlogsByCategory(categoryId, limit);
     
         return PartialView("_BlogList", blogs);
     }
     [HttpGet]
-    public async Task<IActionResult> Explore(int? categoryId, string? searchTerm, 
-        string? sortBy, string? sortDirection, int page = 1, int pageSize = 9)
+    public async Task<IActionResult> Explore([FromQuery] BlogFilterViewModel filter)
     {
+        if (filter.Page <= 0) filter.Page = 1;
+        if (filter.PageSize <= 0) filter.PageSize = 9;
+    
         var model = await _blogService.GetFilteredBlogsAsync(
-            categoryId, searchTerm, sortBy, sortDirection, page, pageSize);
-        
+            filter);
+    
         return View(model);
+    }
+    private Guid? GetCurrentUserId()
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return null;
+        }
+        return Guid.Parse(userId);
     }
 }

@@ -1,6 +1,10 @@
+using BlogAspNet.Web.Models.Entities;
+using BlogAspNet.Web.Models.Repositories.Entities;
 using BlogAspNet.Web.Models.Services;
 using BlogAspNet.Web.Models.Services.ViewModels;
+using BlogAspNet.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogAspNet.Web.Controllers;
@@ -8,70 +12,67 @@ namespace BlogAspNet.Web.Controllers;
 public class UserController : Controller
 {
     private readonly IUserService _userService;
-    private readonly ICommentService _commentService;
+    private readonly UserManager<AppUser> _userManager;
 
-    public UserController(IUserService userService, ICommentService commentService)
+    public UserController(IUserService userService, UserManager<AppUser> userManager)
     {
-        _commentService = commentService;
     
         _userService = userService;
+        _userManager     = userManager;  
     }
 
-    public IActionResult Index()
-    {
-        return View();
-    }
+   
 
-    public async Task<IActionResult> Profile(Guid id)
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> Profile(Guid? id = null)
     {
-        if (id == Guid.Empty)
+        var userId = id ?? _userService.GetCurrentUserId();
+        if (!userId.HasValue)
         {
-            id = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+            return RedirectToAction("Login", "Auth");
         }
+
         try
         {
-            var user = await _userService.GetUserById(id);
-            var userViewModel = await _userService.GetUserViewModelAsync(user, _commentService);
+            var user = await _userService.GetUserById(userId.Value);
+            var userViewModel = await _userService.GetUserViewModelAsync(user);
             return View(userViewModel);
         }
         catch (Exception ex)
         {
-            return NotFound(ex.Message);
+            TempData["ErrorMessage"] = "Kullanıcı bulunamadı.";
+            return RedirectToAction("Index", "Home");
         }
     }
 
-    [Authorize]
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Edit()
     {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null)
+        var userId = _userService.GetCurrentUserId();
+        if (!userId.HasValue)
         {
-            return Unauthorized();
+            return RedirectToAction("Login", "Auth");
         }
 
-        var user = await _userService.GetUserById(Guid.Parse(userId));
-        if (user == null)
-        {
-            return NotFound();
-        }
-
+        var user = await _userService.GetUserById(userId.Value);
         var model = new EditUserViewModel
         {
             Id = user.Id,
             Username = user.UserName,
+            Email = user.Email, // Email gelir ama değiştirilemez
             FullName = user.FullName,
-            Email = user.Email,
-            BirthDate = user.BirthDate ?? DateTime.Now,
             AboutMe = user.AboutMe,
+            BirthDate = user.BirthDate ?? DateTime.Now,
             ProfilePhotoUrl = user.ProfilePhotoUrl
         };
 
         return View(model);
     }
 
-    [Authorize]
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Edit(EditUserViewModel model)
     {
         if (!ModelState.IsValid)
@@ -79,31 +80,33 @@ public class UserController : Controller
             return View(model);
         }
 
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null || model.Id != Guid.Parse(userId))
-        {
-            return Unauthorized();
-        }
+        // Email değişikliğini engelleme
+        var user = await _userService.GetUserById(model.Id);
+        model.Email = user.Email; // Her zaman mevcut e-posta adresini kullan
 
-        var imageSourceType = Request.Form["imageSourceType"].ToString();
-        if (imageSourceType == "upload" && model.ProfilePhotoFile != null)
+        // Profil fotoğrafı işlemleri
+        if (model.ProfilePhotoFile != null)
         {
-            string fileName = await SaveProfileImage(model.ProfilePhotoFile);
+            var fileName = Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) + 
+                           Path.GetExtension(model.ProfilePhotoFile.FileName);
+            var filePath = Path.Combine("wwwroot", "images", "profiles", fileName);
+            
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await model.ProfilePhotoFile.CopyToAsync(stream);
+            }
+            
             model.ProfilePhotoUrl = "/images/profiles/" + fileName;
         }
-        else if (imageSourceType == "url" && !string.IsNullOrEmpty(Request.Form["ProfilePhotoUrl"].ToString()))
-        {
-            model.ProfilePhotoUrl = Request.Form["ProfilePhotoUrl"].ToString();
-        }
 
-        var result = await _userService.UpdateUserAsync(model);
-        if (result)
+        var success = await _userService.UpdateUserAsync(model);
+        if (success)
         {
-            TempData["SuccessMessage"] = "Profiliniz başarıyla güncellendi.";
+            TempData["SuccessMessage"] = "Profil bilgileriniz başarıyla güncellendi.";
             return RedirectToAction("Profile");
         }
 
-        ModelState.AddModelError("", "Profil güncellenirken bir hata oluştu.");
+        TempData["ErrorMessage"] = "Profil güncellenirken bir hata oluştu.";
         return View(model);
     }
 
@@ -124,5 +127,42 @@ public class UserController : Controller
         }
 
         return uniqueFileName;
+    }
+    [HttpGet]
+    [Authorize]
+    public IActionResult ChangePassword()
+    {
+        return View();
+    }
+    
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var userId = _userService.GetCurrentUserId();
+        if (!userId.HasValue)
+        {
+            return RedirectToAction("Login", "Auth");
+        }
+
+        var result = await _userService.ChangePasswordAsync(userId.Value, model.CurrentPassword, model.NewPassword);
+    
+        if (result.Succeeded)
+        {
+            TempData["SuccessMessage"] = "Şifreniz başarıyla değiştirildi.";
+            return RedirectToAction("Profile");
+        }
+    
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError("", error.Description);
+        }
+    
+        return View(model);
     }
 }

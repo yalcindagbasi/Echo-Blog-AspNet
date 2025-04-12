@@ -1,5 +1,7 @@
+using BlogAspNet.Web.Models.Entities;
 using BlogAspNet.Web.Models.Repositories.Entities;
 using BlogAspNet.Web.Models.Services.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace BlogAspNet.Web.Models.Services;
 
@@ -12,8 +14,8 @@ public interface IUserService
     Task<bool> IsUsernameExist(string username);
     Task<AppUser> GetUserById(Guid id);
     UserViewModel GetUserViewModel(AppUser user);
-    Task<UserViewModel> GetUserViewModelAsync(AppUser user, ICommentService commentService);
-    Task<List<UserViewModel>> GetBestWriters();
+    Task<UserViewModel> GetUserViewModelAsync(AppUser user);
+    Task<List<UserViewModel>> GetBestWriters(int count=4);
     Task<bool> UpdateUserAsync(EditUserViewModel model);
     Task<List<UserViewModel>> GetAllUsers();
     Task<bool> UpdateUserRolesAsync(Guid userId, string[] roles);
@@ -23,5 +25,8 @@ public interface IUserService
     Task<bool> DeleteAsync(AppUser user);
     Task<bool> CreateRoleAsync(string roleName);
     Task<PageUserViewModel> GetPaginatedUsersAsync(int page = 1, int pageSize = 10);
+    Guid? GetCurrentUserId();
+    Task<IdentityResult> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword);
+
 
 }

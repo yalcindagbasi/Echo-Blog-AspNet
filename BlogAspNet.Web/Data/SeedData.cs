@@ -1,4 +1,5 @@
 using BlogAspNet.Web.Models;
+using BlogAspNet.Web.Models.Entities;
 using BlogAspNet.Web.Models.Repositories;
 using BlogAspNet.Web.Models.Repositories.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -129,6 +130,7 @@ public static class SeedData
     {
         var categories = new List<Category>
         {
+            new Category { Name = "Genel", },
             new Category { Name = "Yazılım", },
             new Category { Name = "Seyahat", },
             new Category { Name = "Yemek", },
@@ -260,7 +262,7 @@ public static class SeedData
     }
 
         
-        await SeedComments(context, users, blogs);
+    await SeedComments(context, users, blogs);
     }
     private static string GenerateRandomSentence(int wordCount)
     {
@@ -319,7 +321,7 @@ public static class SeedData
     foreach (var blog in blogs)
     {
         // 0-5 arası rastgele yorum sayısı
-        var commentCount = random.Next(6);
+        var commentCount = random.Next(15);
         
         for (int i = 0; i < commentCount; i++)
         {

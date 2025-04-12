@@ -3,9 +3,6 @@
 <div class="mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold m-0 text-brown">En İyi Yazarlar</h2>
-        <a href="#" class="btn btn-sm btn-light-amber rounded-pill px-3">
-            <i class="bi bi-people me-1"></i>Tüm Yazarlar
-        </a>
     </div>
 
     <div class="row g-4">
@@ -30,7 +27,7 @@
                         <div class="text-center pt-4 px-3 pb-3 mt-2">
                             <h5 class="fw-bold text-brown mb-1">@writer.FullName</h5>
                             <p class="text-amber mb-3 small d-flex align-items-center justify-content-center">
-                                <i class="bi bi-pen me-2"></i>@writer.Blogs.Count blog yazısı
+                                <i class="bi bi-pen me-2"></i>@writer.TotalViews okunma sayısı
                             </p>
                             <p class="card-text small text-muted mb-3">
                                 @(string.IsNullOrEmpty(writer.AboutMe)
@@ -48,7 +45,7 @@
                                 <a href="#" class="btn btn-outline-secondary rounded-circle me-2" style="width: 36px; height: 36px; padding: 0; display: flex; justify-content: center; align-items: center;">
                                     <i class="bi bi-linkedin"></i>
                                 </a>
-                                <a href="@Url.Action("Profile", "User", new { username = writer.Username })"
+                                <a asp-controller="User" asp-action="Profile" asp-route-id="@writer.Id" 
                                    class="btn btn-amber rounded-pill px-3">
                                     <i class="bi bi-person me-1"></i>Profil
                                 </a>

@@ -1,3 +1,4 @@
+using BlogAspNet.Web.Models.Entities;
 using BlogAspNet.Web.Models.Repositories;
 using BlogAspNet.Web.Models.Repositories.Entities;
 

@@ -1,3 +1,5 @@
+using BlogAspNet.Web.Models.Entities;
+
 namespace BlogAspNet.Web.Models.Repositories;
 
 public interface IBlogRepository

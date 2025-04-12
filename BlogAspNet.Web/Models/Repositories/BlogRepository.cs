@@ -1,3 +1,4 @@
+using BlogAspNet.Web.Models.Entities;
 using BlogAspNet.Web.Models.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
 

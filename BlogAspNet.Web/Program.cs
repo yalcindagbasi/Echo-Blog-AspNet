@@ -1,4 +1,5 @@
 using BlogAspNet.Web.Data;
+using BlogAspNet.Web.Models.Entities;
 using BlogAspNet.Web.Models.Repositories;
 using BlogAspNet.Web.Models.Repositories.Entities;
 using BlogAspNet.Web.Models.Services;
@@ -14,11 +15,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
     {
-        options.Password.RequireDigit = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireLowercase = false;
+        options.Password.RequireDigit = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
         options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequiredLength = 3;
+        options.Password.RequiredLength = 6;
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
@@ -65,7 +66,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+app.UseExceptionHandler("/Error");
 app.UseAuthentication();
 app.UseAuthorization();
 

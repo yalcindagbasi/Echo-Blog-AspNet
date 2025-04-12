@@ -1,3 +1,4 @@
+using BlogAspNet.Web.Models.Entities;
 using BlogAspNet.Web.Models.Repositories;
 using BlogAspNet.Web.Models.Repositories.Entities;
 using BlogAspNet.Web.Models.Services;
@@ -19,9 +20,9 @@ public class AdminController(
     private readonly ILogger<AdminController> _logger = logger;
 
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 5)
     {
-        var pageUserViewModel = await userService.GetPaginatedUsersAsync(1, 5);
+        var pageUserViewModel = await userService.GetPaginatedUsersAsync(page, pageSize);
         return View(pageUserViewModel);
     }
 
@@ -175,4 +176,5 @@ public class AdminController(
 
         return RedirectToAction("Blogs");
     }
+    
 }

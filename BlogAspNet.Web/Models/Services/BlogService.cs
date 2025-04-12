@@ -1,3 +1,4 @@
+using BlogAspNet.Web.Models.Entities;
 using BlogAspNet.Web.Models.Repositories;
 using BlogAspNet.Web.Models.Services.ViewModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,10 +11,15 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
     private readonly IBlogRepository _blogRepository = blogRepository;
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
 
-    public async Task<List<BlogViewModel>> GetAllBlogs()
+    public async Task<List<BlogViewModel>> GetAllBlogs(int limit=0)
     {
         var blogList = await _blogRepository.GetBlogsAsync();
+        if (limit > 0)
+        {
+            blogList = blogList.Take(limit).ToList();
+        }
         var blogViewModels = new List<BlogViewModel>();
+        
         foreach (var blog in blogList)
         {
             blogViewModels.Add(GetBlogViewModel(blog));
@@ -27,7 +33,7 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
         var blog = await _blogRepository.GetBlogAsync(id);
         if (blog == null)
         {
-            throw new Exception($"Blog not found. ID: {id}");
+            return null;
         }
         return GetBlogViewModel(blog);
     }
@@ -132,9 +138,13 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
         return true;
     }
     
-    public async Task<List<BlogViewModel>> GetBlogsByCategory(int categoryId)
+    public async Task<List<BlogViewModel>> GetBlogsByCategory(int categoryId, int limit=0)
     {
         var blogs = await _blogRepository.GetBlogsByCategoryAsync(categoryId);
+        if (limit > 0)
+        {
+            blogs = blogs.Take(limit).ToList();
+        }
         var blogViewModels = new List<BlogViewModel>();
         foreach (var blog in blogs)
         {
@@ -182,7 +192,7 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
         var users = await userService.GetBestWriters();
         return users;
     }
-    public async Task<BlogFilterViewModel> GetFilteredBlogsAsync(int? categoryId, string? searchTerm, string? sortBy, string? sortDirection, int page, int pageSize)
+    public async Task<BlogFilterViewModel> GetFilteredBlogsAsync(BlogFilterViewModel filter)
     {
         var categories = await _categoryRepository.GetAllAsync();
     
@@ -194,21 +204,15 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
         };
     
         var result = await _blogRepository.GetBlogsWithFilteringAsync(
-            categoryId, searchTerm, sortBy, sortDirection, page, pageSize);
+            filter.CategoryId, filter.SearchTerm, filter.SortBy, 
+            filter.SortDirection, filter.Page, filter.PageSize);
     
-        return new BlogFilterViewModel
-        {
-            CategoryId = categoryId,
-            SearchTerm = searchTerm,
-            SortBy = sortBy,
-            SortDirection = sortDirection,
-            Page = page,
-            PageSize = pageSize,
-            CategoryList = new SelectList(categories, "Id", "Name", categoryId),
-            SortOptions = new SelectList(sortOptions, "Value", "Text", sortBy),
-            Blogs = result.Item1.Select(b => GetBlogViewModel(b)).ToList(),
-            TotalBlogs = result.Item2
-        };
+        filter.CategoryList = new SelectList(categories, "Id", "Name", filter.CategoryId);
+        filter.SortOptions = new SelectList(sortOptions, "Value", "Text", filter.SortBy);
+        filter.Blogs = result.Item1.Select(b => GetBlogViewModel(b)).ToList();
+        filter.TotalBlogs = result.Item2;
+    
+        return filter;
     }
 
     public async Task<HomeViewModel> GetHomeViewModel(int blogCount = 6, int featuredBlogCount = 3)
@@ -237,7 +241,13 @@ public class BlogService(IBlogRepository blogRepository, ICategoryRepository cat
         var blogs = result.Item1.Select(b => GetBlogViewModel(b)).ToList();
         return (blogs, result.Item2);
     }
-    
+
+    public async Task<List<BlogViewModel>> GetRecentBlogsAsync(int count)
+    {
+        var blogs = await _blogRepository.GetBlogsAsync();
+        var recentBlogs = blogs.OrderByDescending(b => b.CreatedAt).Take(count).ToList();
+        return recentBlogs.Select(b => GetBlogViewModel(b)).ToList();
+    }
 }
 
 

@@ -1,3 +1,4 @@
+using BlogAspNet.Web.Models.Entities;
 using BlogAspNet.Web.Models.Repositories;
 using BlogAspNet.Web.Models.Repositories.Entities;
 using BlogAspNet.Web.Models.Services.ViewModels;
@@ -9,12 +10,14 @@ namespace BlogAspNet.Web.Models.Services;
 public class UserService(
     UserManager<AppUser> userManager,
     RoleManager<AppRole> roleManager,
-    SignInManager<AppUser> signInManager)
+    SignInManager<AppUser> signInManager,
+    ICommentService commentService)
     : IUserService
 {
     private readonly RoleManager<AppRole> _roleManager = roleManager;
     private readonly UserManager<AppUser> _userManager = userManager;
     private readonly SignInManager<AppUser> _signInManager = signInManager;
+    private readonly ICommentService _commentService = commentService;
     
     public async Task<bool> RegisterUserAsync(RegisterViewModel model)
     {
@@ -70,7 +73,7 @@ public class UserService(
         var user = await _userManager.FindByNameAsync(username);
         return user != null;
     }
-public async Task<UserViewModel> GetUserViewModelAsync(AppUser user, ICommentService commentService)
+public async Task<UserViewModel> GetUserViewModelAsync(AppUser user)
 {
     var comments = await commentService.GetUserCommentsAsync(user.Id);
     
@@ -139,19 +142,19 @@ public async Task<UserViewModel> GetUserViewModelAsync(AppUser user, ICommentSer
     
         if (user == null)
         {
-            throw new Exception("User not found");
+            return null;
         }
 
         return user;
     }
-    public async Task<List<UserViewModel>> GetBestWriters()
+    public async Task<List<UserViewModel>> GetBestWriters(int count=4)
     {
         var users = await _userManager.Users.Include(u => u.Blogs).ToListAsync();
-        var bestWriters = users.OrderByDescending(u => u.Blogs.Count).Take(4).ToList();
+        var bestWriters = users.OrderByDescending(u => u.Blogs.Sum(b=>b.ViewCount)).Take(count).ToList();
         var userViewModels = new List<UserViewModel>();
         foreach (var user in bestWriters)
         {
-            userViewModels.Add(GetUserViewModel(user));
+            userViewModels.Add(await GetUserViewModelAsync(user));
         }
 
         return userViewModels;
@@ -185,7 +188,7 @@ public async Task<UserViewModel> GetUserViewModelAsync(AppUser user, ICommentSer
         var userViewModels = new List<UserViewModel>();
         foreach (var user in users)
         {
-            userViewModels.Add(GetUserViewModel(user));
+            userViewModels.Add(await GetUserViewModelAsync(user));
         }
 
         return userViewModels;
@@ -220,8 +223,24 @@ public async Task<UserViewModel> GetUserViewModelAsync(AppUser user, ICommentSer
     }
     public async Task<bool> DeleteAsync(AppUser user)
     {
-        var result = await _userManager.DeleteAsync(user);
-        return result.Succeeded;
+        try
+        {
+            // Önce kullanıcıya ait tüm yorumları sil
+            var userComments = await _commentService.GetUserCommentsAsync(user.Id);
+
+            foreach (var comment in userComments)
+            {
+                await _commentService.DeleteCommentAsync(comment.Id,user.Id);
+            }
+
+            // Sonra kullanıcıyı sil
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
     public async Task<bool> CreateRoleAsync(string roleName)
     {
@@ -241,8 +260,11 @@ public async Task<UserViewModel> GetUserViewModelAsync(AppUser user, ICommentSer
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-        
-        var userViewModels = users.Select(user => GetUserViewModel(user)).ToList();
+        var userViewModels = new List<UserViewModel>();
+        foreach (var user in users)
+        {
+            userViewModels.Add(await GetUserViewModelAsync(user));
+        }
     
         return new PageUserViewModel
         {
@@ -252,5 +274,23 @@ public async Task<UserViewModel> GetUserViewModelAsync(AppUser user, ICommentSer
             TotalItems = totalCount
         };
     }
+    public Guid? GetCurrentUserId()
+    {
+        var userId = _userManager.GetUserId(_signInManager.Context.User);
+        if (userId == null)
+        {
+            return null;
+        }
+        return Guid.Parse(userId);
+    }
+    public async Task<IdentityResult> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return IdentityResult.Failed(new IdentityError { Description = "Kullanıcı bulunamadı" });
+        }
     
+        return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+    }
 }

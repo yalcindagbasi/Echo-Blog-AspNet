@@ -1,5 +1,7 @@
 @model PageUserViewModel
-
+@{
+    var currentAction = ViewContext.RouteData.Values["action"].ToString();
+}
 <div class="card shadow-sm border-0 rounded-4">
     <div class="card-header bg-white border-0 py-3">
         <div class="d-flex justify-content-between align-items-center">
@@ -72,7 +74,10 @@
                 @if (Model.CurrentPage > 1)
                 {
                     <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Users", "Admin", new { page = Model.CurrentPage - 1 })" tabindex="-1">Önceki</a>
+                        <a class="page-link"
+                           asp-controller="Admin"
+                           asp-action="@currentAction"
+                           asp-route-page="@(Model.CurrentPage - 1)" tabindex="-1">Önceki</a>
                     </li>
                 }
                 else
@@ -85,14 +90,20 @@
                 @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
                 {
                     <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Users", "Admin", new { page = i })">@i</a>
+                        <a class="page-link"
+                           asp-controller="Admin"
+                           asp-action="@currentAction"
+                           asp-route-page="@i">@i</a>
                     </li>
                 }
 
                 @if (Model.CurrentPage < Model.TotalPages)
                 {
                     <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Users", "Admin", new { page = Model.CurrentPage + 1 })">Sonraki</a>
+                        <a class="page-link"
+                           asp-controller="Admin"
+                           asp-action="@currentAction"
+                           asp-route-page="@(Model.CurrentPage + 1)">Sonraki</a>
                     </li>
                 }
                 else

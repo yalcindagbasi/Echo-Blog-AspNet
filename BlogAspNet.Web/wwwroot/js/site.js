@@ -1,33 +1,25 @@
-﻿// Kategori filtreleme işlevi
-document.addEventListener('DOMContentLoaded', function() {
-    // Kategori butonlarını seç
-    const categoryButtons = document.querySelectorAll('.category-filters .btn');
+﻿$(document).ready(function() {
+    // Kategori butonlarına tıklama olayını dinle
+    $(".category-filters button").click(function() {
+        // Tıklanan butonun aktif olmasını sağla
+        $(".category-filters button").removeClass("btn-amber").addClass("btn-light-amber");
+        $(this).removeClass("btn-light-amber").addClass("btn-amber");
 
-    // Her kategori butonuna tıklama olayı ekle
-    categoryButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Tüm butonların aktif sınıfını kaldır
-            categoryButtons.forEach(btn => {
-                btn.classList.remove('btn-amber');
-                btn.classList.add('btn-light-amber');
-            });
+        // Kategori ID'sini al
+        var categoryId = $(this).data("category-id");
 
-            // Tıklanan butonu aktif yap
-            this.classList.remove('btn-light-amber');
-            this.classList.add('btn-amber');
-
-            const categoryId = this.getAttribute('data-category-id');
-
-            // AJAX ile kategori filtrelemesi yap
-            fetch(`/Blog/GetBlogsByCategory?categoryId=${categoryId}`)
-                .then(response => response.text())
-                .then(html => {
-                    // Blog listesi konteynırını güncelle
-                    document.querySelector('.container .row.g-4').parentElement.innerHTML = html;
-                })
-                .catch(error => {
-                    console.error('Kategori filtreleme hatası:', error);
-                });
+        // AJAX ile blogları getir
+        $.ajax({
+            url: '/Blog/GetBlogsByCategory',
+            type: 'GET',
+            data: { categoryId: categoryId, limit: 6 }, // Her zaman sadece 6 blog için limit ekle
+            success: function(response) {
+                // Blog listesini güncelle
+                $("#blogListContainer").html(response);
+            },
+            error: function(error) {
+                console.log("Hata oluştu: ", error);
+            }
         });
     });
 });

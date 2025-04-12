@@ -1,19 +1,22 @@
-﻿@{
-    ViewData["Title"] = "Hata";
+@{
+    ViewData["Title"] = "Erişim Reddedildi";
 }
 
 <div class="container text-center py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="error-template">
-                <h1 class="display-1">Hata</h1>
-                <h2>Bir sorun oluştu</h2>
+                <h1 class="display-1">403</h1>
+                <h2>Erişim Reddedildi</h2>
                 <div class="error-details my-4">
-                    Üzgünüz, işleminiz sırasında beklenmeyen bir hata oluştu.
+                    Üzgünüz, bu sayfaya erişim yetkiniz bulunmamaktadır.
                 </div>
                 <div class="error-actions">
                     <a href="/" class="btn btn-primary btn-lg">
-                        <i class="bi bi-house"></i> Ana Sayfaya Dön
+                        <i class="bi bi-house-fill"></i> Ana Sayfaya Dön
+                    </a>
+                    <a href="/Auth/Login" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Giriş Yap
                     </a>
                 </div>
             </div>
@@ -25,22 +28,30 @@
     .error-template {
         padding: 40px 15px;
     }
+    
     .error-template h1 {
         font-size: 8rem;
-        color: #dc3545;
+        color: #FF9800;
         margin-bottom: 0;
         text-shadow: 2px 2px 3px rgba(0,0,0,0.1);
     }
+    
     .error-template h2 {
         font-size: 2.5rem;
         margin: 10px 0 20px;
         color: #333;
     }
+    
     .error-details {
         font-size: 1.2rem;
         color: #777;
     }
+    
     .error-actions {
         margin-top: 30px;
+    }
+    
+    .error-actions .btn {
+        margin-right: 10px;
     }
 </style>

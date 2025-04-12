@@ -1,18 +1,26 @@
+using BlogAspNet.Web.Models.Entities;
 using BlogAspNet.Web.Models.Repositories;
 using BlogAspNet.Web.Models.Repositories.Entities;
 using BlogAspNet.Web.Models.Services.ViewModels;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogAspNet.Web.Models.Services;
 
 public class CommentService : ICommentService
 {
     private readonly ICommentRepository _commentRepository;
-    private readonly IUserService _userService;
-
-    public CommentService(ICommentRepository commentRepository, IUserService userService)
+    private readonly UserManager<AppUser> _userManager;
+    private readonly IServiceProvider _serviceProvider;
+    
+    public CommentService(
+        ICommentRepository commentRepository, 
+        UserManager<AppUser> userManager,
+        IServiceProvider serviceProvider)
     {
         _commentRepository = commentRepository;
-        _userService = userService;
+        _userManager = userManager;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task<List<CommentViewModel>> GetBlogCommentsAsync(Guid blogId)
@@ -23,7 +31,9 @@ public class CommentService : ICommentService
 
     public async Task<CommentViewModel> AddCommentAsync(CommentCreateViewModel model, Guid userId)
     {
-        var user = await _userService.GetUserById(userId);
+        var user = await _userManager.Users
+            .Include(u => u.Comments)
+            .FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null)
         {
             return null;

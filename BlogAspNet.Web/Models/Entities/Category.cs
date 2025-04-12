@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
-namespace BlogAspNet.Web.Models.Repositories;
+namespace BlogAspNet.Web.Models.Entities;
 
 public class Category
 {

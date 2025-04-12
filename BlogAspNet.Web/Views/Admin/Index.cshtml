@@ -53,24 +53,30 @@
     </div>
 </div>
 
-<div class="card shadow-sm border-0 rounded-4">
-    <div class="card-header bg-white border-0 py-3">
-        <h5 class="text-brown mb-0 fw-bold">Son Bloglar</h5>
-    </div>
-    <div class="card-body p-4">
-        <!-- Son bloglar listesi -->
-    </div>
-</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         fetch('/Admin/GetStatistics')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('İstatistikler alınamadı! Status: ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('İstatistik verileri:', data);
                 document.getElementById('userCount').textContent = data.userCount;
                 document.getElementById('blogCount').textContent = data.blogCount;
                 document.getElementById('categoryCount').textContent = data.categoryCount;
                 document.getElementById('commentCount').textContent = data.commentCount;
+            })
+            .catch(error => {
+                console.error('İstatistikler yüklenirken hata:', error);
+                document.getElementById('userCount').textContent = 'Hata';
+                document.getElementById('blogCount').textContent = 'Hata';
+                document.getElementById('categoryCount').textContent = 'Hata';
+                document.getElementById('commentCount').textContent = 'Hata';
             });
     });
 </script>

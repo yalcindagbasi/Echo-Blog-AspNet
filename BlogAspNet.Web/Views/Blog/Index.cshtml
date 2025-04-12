@@ -7,32 +7,41 @@
 
 <div class="container my-5">
     <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Blog başlık ve üst bilgiler bölümüne eklenecek -->
-            <div class="d-flex justify-content-center align-items-center mb-4">
-                <!-- Mevcut içerik -->
-                <div class="ms-3 text-start">
-                    <p class="fw-bold mb-0">@Model.Author</p>
-                    <div class="text-muted d-flex align-items-center">
-                        <i class="bi bi-calendar-event me-2"></i>
-                        <span>@Model.CreatedAt.ToString("dd MMMM yyyy")</span>
-                        <span class="mx-2">•</span>
-                        <i class="bi bi-eye me-1"></i>
-                        <span>@Model.ViewCount okunma</span>
+        <div class="col-lg-8">
+            <!-- Blog Başlık ve Kategori Alanı -->
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-light-amber text-brown rounded-pill px-3 py-2 me-3">
+                        <i class="bi bi-tag me-1"></i>@Model.Category
+                    </span>
+                    <span class="text-muted small">
+                        <i class="bi bi-calendar3 me-1"></i>@Model.CreatedAt.ToString("dd MMMM yyyy")
+                    </span>
+                </div>
+                <h1 class="fw-bold text-brown display-5">@Model.Title</h1>
+                <div class="d-flex align-items-center mt-3">
+                    <img src="@Model.AuthorImageUrl" alt="@Model.Author" class="rounded-circle me-2" width="40" height="40">
+                    <div>
+                        <a asp-controller="User" asp-action="Profile" asp-route-id="@Model.AuthorId"
+                           class="text-decoration-none fw-semibold text-brown">
+                            @Model.Author
+                        </a>
+                        <div class="text-muted small d-flex align-items-center">
+                            <i class="bi bi-eye me-1"></i>@Model.ViewCount görüntülenme
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Blog resmi -->
-            <figure class="mb-5 rounded-4 overflow-hidden shadow-sm">
-                <img class="img-fluid w-100" src="@Model.ImageUrl" alt="@Model.Title"
-                     style="max-height: 500px; object-fit: cover;">
-            </figure>
+            <!-- Blog Görseli -->
+            <div class="mb-4">
+                <img src="@Model.ImageUrl" class="img-fluid rounded-4 shadow-sm w-100" style="max-height: 450px; object-fit: cover;" alt="@Model.Title">
+            </div>
 
-            <!-- Blog içeriği -->
-            <article class="blog-content p-4 bg-white shadow-sm rounded-4 mb-5">
+            <!-- Blog İçeriği -->
+            <div class="blog-content card border-0 shadow-sm rounded-4 p-4 mb-4">
                 @Html.Raw(Model.Content)
-            </article>
+            </div>
 
             <!-- Alt bilgi ve paylaşım -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-4 bg-white shadow-sm rounded-4">
@@ -84,56 +93,55 @@
                     }
                 }
             </div>
-        </div>
-    </div>
 
-    <!-- İlgili bloglar -->
-    @if (ViewBag.RelatedBlogs != null && ((List<BlogViewModel>)ViewBag.RelatedBlogs).Any())
-    {
-        <div class="mt-5 pt-5 border-top">
-            <h3 class="fw-bold text-brown mb-4">İlgili Bloglar</h3>
-            <div class="row g-4">
-                @foreach (var relatedBlog in (List<BlogViewModel>)ViewBag.RelatedBlogs)
-                {
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 blog-card shadow-sm border-0 rounded-3 overflow-hidden">
-                            <div class="position-relative overflow-hidden">
-                                <img src="@relatedBlog.ImageUrl" class="card-img-top blog-img" alt="@relatedBlog.Title">
-                                <div class="position-absolute top-0 start-0 p-3">
-                                    <span class="badge bg-light-amber text-brown rounded-pill px-3 py-2">@relatedBlog.Category</span>
+            <!-- Yorumlar Bölümü -->
+            <partial name="_Comments" model="Model.Comments" />
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mt-4">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+
+        <!-- Yan İçerik (sağ taraf) -->
+        <div class="col-lg-4">
+            <!-- İlgili bloglar -->
+            @if (ViewBag.RelatedBlogs != null && ((List<BlogViewModel>)ViewBag.RelatedBlogs).Any())
+            {
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body">
+                        <h4 class="fw-bold text-brown mb-4">
+                            <i class="bi bi-collection me-2"></i>İlgili Bloglar
+                        </h4>
+                        <div class="related-blogs-list">
+                            @foreach (var relatedBlog in (List<BlogViewModel>)ViewBag.RelatedBlogs)
+                            {
+                                <div class="card mb-3 border-0 shadow-sm">
+                                    <div class="row g-0">
+                                        <div class="col-4">
+                                            <img src="@relatedBlog.ImageUrl" class="img-fluid rounded-start"
+                                                 style="height: 100%; object-fit: cover;" alt="@relatedBlog.Title">
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body p-2">
+                                                <h6 class="card-title mb-1 text-truncate">@relatedBlog.Title</h6>
+                                                <small class="text-muted d-block mb-2">@relatedBlog.CreatedAt.ToString("dd MMM yyyy")</small>
+                                                <a href="@Url.Action("Index", "Blog", new { blogId = relatedBlog.Id })"
+                                                   class="btn btn-sm btn-light-amber rounded-pill px-2 py-1">
+                                                    <i class="bi bi-eye-fill"></i> Oku
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title fw-bold text-brown mb-3">@relatedBlog.Title</h5>
-                                <p class="card-text text-muted flex-grow-1 small">
-                                    @(relatedBlog.Content.Length > 100 ? relatedBlog.Content.Substring(0, 100) + "..." : relatedBlog.Content)
-                                </p>
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <small class="text-muted">@relatedBlog.CreatedAt.ToString("dd MMM yyyy")</small>
-                                    <a href="@Url.Action("Index", "Blog", new { blogId = relatedBlog.Id })"
-                                       class="btn btn-sm btn-light-amber rounded-pill px-3">
-                                        <i class="bi bi-eye me-1"></i>Oku
-                                    </a>
-                                </div>
-                            </div>
+                            }
                         </div>
                     </div>
-                }
-            </div>
-        </div>
-    }
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Comments Section -->
-            <partial name="_Comments" model="ViewBag.Comments" />
+                </div>
+            }
         </div>
     </div>
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    
 </div>

@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BlogAspNet.Web.Models.Repositories;
 using BlogAspNet.Web.Models.Repositories.Entities;
 
-namespace BlogAspNet.Web.Models.Repositories;
+namespace BlogAspNet.Web.Models.Entities;
 
 public class Blog
 {
@@ -15,10 +16,11 @@ public class Blog
     [Required]
     public string Content { get; set; } = null!;
 
-    [StringLength(200)] public string ImageUrl { get; set; } = null!; 
+    [StringLength(200)] public string? ImageUrl { get; set; }  
 
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
     
     public bool IsDeleted { get; set; } 
     public DateTime? DeletedAt { get; set; }
@@ -26,7 +28,7 @@ public class Blog
     [Required] 
     public required Guid UserId { get; set; }
     [Required] 
-    public required AppUser User { get; set; }
+    public AppUser User { get; set; }
 
     [Required] 
     public int CategoryId { get; set; }

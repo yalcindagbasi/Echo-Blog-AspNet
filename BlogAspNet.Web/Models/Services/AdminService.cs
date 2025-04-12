@@ -9,10 +9,10 @@ public class AdminService(
     ICommentService commentService)
     : IAdminService
 {
-    private readonly ICategoryService _categoryService;
-    private readonly IBlogService _blogService;
-    private readonly IUserService _userService;
-    private readonly ICommentService _commentService;
+    private readonly ICategoryService _categoryService = categoryService;
+    private readonly IBlogService _blogService = blogService;
+    private readonly IUserService _userService = userService;
+    private readonly ICommentService _commentService = commentService;
     
     public async Task<object> GetStatistics()
     {

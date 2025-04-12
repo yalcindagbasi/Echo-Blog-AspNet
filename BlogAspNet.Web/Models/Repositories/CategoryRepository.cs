@@ -1,3 +1,4 @@
+using BlogAspNet.Web.Models.Entities;
 using Microsoft.EntityFrameworkCore;
         
         namespace BlogAspNet.Web.Models.Repositories;

@@ -47,16 +47,10 @@ public class CommentController : Controller
     public async Task<IActionResult> Delete(Guid id, Guid blogId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
-
+        bool isAdmin = User.IsInRole("Admin");
         var isOwner = await _commentService.IsCommentOwnerAsync(id, Guid.Parse(userId));
-        if (!isOwner)
-        {
+        if (!isAdmin && !isOwner)
             return Forbid();
-        }
 
         await _commentService.DeleteCommentAsync(id, Guid.Parse(userId));
         return RedirectToAction("Index", "Blog", new { blogId });

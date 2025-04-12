@@ -35,7 +35,8 @@
 
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label fw-medium text-brown">E-posta</label>
-                            <input asp-for="Email" class="form-control rounded-3 border-amber-dark" />
+                            <input asp-for="Email" class="form-control rounded-3 border-amber-dark" readonly />
+                            <small class="text-muted">E-posta adresi değiştirilemez.</small>
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
