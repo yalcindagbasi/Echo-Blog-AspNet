@@ -1,4 +1,4 @@
-# Blog Uygulaması
+# Blog Uygulaması (Echo)
 
 Bu proje, ASP.NET Core ve Entity Framework Core kullanarak geliştirilmiş bir blog uygulamasıdır. Kullanıcılar, blog yazıları oluşturabilir, kategoriler oluşturabilir ve mevcut yazılara yorum yapabilir. Ayrıca, yazılar popülerliklerine göre sıralanabilir ve görüntülenme sayıları takip edilebilir. Uygulama, kullanıcı yönetimi için ASP.NET Core Identity kullanmaktadır ve veritabanı işlemleri için MSSQL Server kullanılmaktadır.
 
