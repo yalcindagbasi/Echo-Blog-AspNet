@@ -23,17 +23,20 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarContent">
-                <!-- Arama Çubuğu -->
-                <form class="d-flex mx-auto my-2 my-lg-0 position-relative" style="max-width: 400px;">
+                <form class="d-flex mx-auto my-2 my-lg-0 position-relative" style="max-width: 400px;"
+                      asp-controller="Blog" asp-action="Explore" method="get">
                     <div class="input-group">
                         <input class="form-control border-amber-light bg-light rounded-pill ps-3 pe-5"
-                               type="search" placeholder="Blog ara..." aria-label="Search">
+                               type="search" name="SearchTerm" placeholder="Blog ara..." aria-label="Search">
                         <button class="btn position-absolute end-0 top-0 bottom-0 px-3 bg-transparent text-amber" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
+                    <!-- Gizli alanlar -->
+                    <input type="hidden" name="Page" value="1" />
+                    <input type="hidden" name="SortBy" value="date" />
+                    <input type="hidden" name="SortDirection" value="desc" />
                 </form>
-
                 <!-- Sol Menü -->
                 <ul class="navbar-nav me-auto d-lg-none mt-3">
                     @if (User.Identity!.IsAuthenticated)

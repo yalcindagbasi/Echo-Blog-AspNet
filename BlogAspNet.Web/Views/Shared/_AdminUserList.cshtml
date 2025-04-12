@@ -160,14 +160,12 @@
 </div>
 
 <script>
-    // Kullanıcı silme onay işlemi
     function confirmDeleteUser(userId, username) {
         if (confirm(`${username} kullanıcısını silmek istediğinize emin misiniz?`)) {
             window.location.href = `/Admin/DeleteUser?userId=${userId}`;
         }
     }
 
-    // Rol düzenleme modalı açıldığında kullanıcı ID'sini ayarla
     document.addEventListener('DOMContentLoaded', function() {
         const editRoleModal = document.getElementById('editRoleModal');
         if (editRoleModal) {
@@ -177,7 +175,6 @@
                 const userIdInput = document.getElementById('userId');
                 userIdInput.value = userId;
 
-                // Burada Ajax ile kullanıcının mevcut rollerini alıp checkbox'ları işaretleyebilirsiniz
                 fetch(`/Admin/GetUserRoles?userId=${userId}`)
                     .then(response => response.json())
                     .then(roles => {
@@ -189,7 +186,6 @@
         }
     });
 
-    // Kullanıcı arama fonksiyonu
     document.getElementById('userSearch').addEventListener('keyup', function() {
         const searchValue = this.value.toLowerCase();
         const tableRows = document.querySelectorAll('tbody tr');

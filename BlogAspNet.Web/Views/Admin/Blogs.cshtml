@@ -171,12 +171,10 @@
         }
 
         $(document).ready(function() {
-            // Otomatik kapanan alertler için
             setTimeout(function() {
                 $('.alert').alert('close');
             }, 5000);
 
-            // Tooltip etkinleştirme
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)

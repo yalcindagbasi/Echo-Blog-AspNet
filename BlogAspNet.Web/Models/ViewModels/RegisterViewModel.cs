@@ -23,7 +23,7 @@ public class RegisterViewModel
     public string? AboutMe { get; set; }
     
     [Required(ErrorMessage = "Şifre alanı zorunludur.")]
-    [StringLength(100, ErrorMessage = "Şifre en az {2} karakter uzunluğunda olmalıdır.", MinimumLength = 3)]
+    [StringLength(100, ErrorMessage = "Şifre en az {2} karakter uzunluğunda olmalıdır.", MinimumLength = 6)]
     [DataType(DataType.Password)]
     [Display(Name = "Şifre")]
     public string Password { get; set; } = null!;

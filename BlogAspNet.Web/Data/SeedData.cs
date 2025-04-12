@@ -18,16 +18,12 @@ public static class SeedData
 
         try
         {
-            // Bloglar zaten oluşturulmuşsa çık
             if (context.Blogs.Any()) return;
 
-            // Kullanıcıları oluştur
             var users = await SeedUsers(userManager);
 
-            // Kategorileri oluştur
             var categories = await SeedCategories(context);
 
-            // Blogları oluştur
             await SeedBlogs(context, users, categories);
         }
         catch (Exception ex)
@@ -43,7 +39,6 @@ public static class SeedData
         var users = new List<AppUser>();
         var random = new Random();
 
-        // Profil fotoğrafları için URL'ler
         var profileImages = new List<string>
         {
             "https://i.pravatar.cc/150?img=1",
@@ -58,7 +53,6 @@ public static class SeedData
             "https://i.pravatar.cc/150?img=10"
         };
 
-        // Hakkımda metinleri
         var aboutMeTexts = new List<string>
         {
             "Yazılım geliştirme ve teknoloji konularında blog yazıları yazıyorum. Özellikle web teknolojileri ve mobil uygulama geliştirme alanında deneyim sahibiyim.",
@@ -73,7 +67,6 @@ public static class SeedData
             "Kişisel gelişim ve motivasyon konularında içerikler üretiyorum. Daha iyi bir yaşam için pratik ipuçları sunuyorum."
         };
 
-        // 10 kullanıcı oluştur
         var testUsers = new[]
         {
             new { Name = "Ahmet Yılmaz", Email = "ahmet@example.com", Username = "ahmetyilmaz" },
@@ -94,7 +87,7 @@ public static class SeedData
             var existingUser = await userManager.FindByNameAsync(userInfo.Username);
             if (existingUser != null)
             {
-                users.Add(existingUser); // Eğer varsa listeye ekle ve devam et
+                users.Add(existingUser); 
                 i++;
                 continue;
             }
@@ -114,7 +107,7 @@ public static class SeedData
                 
             };
 
-            var result = await userManager.CreateAsync(user, "123");
+            var result = await userManager.CreateAsync(user, "Pass123!");
             if (result.Succeeded)
             {
                 users.Add(user);
@@ -160,7 +153,6 @@ public static class SeedData
     var random = new Random();
     var blogs = new List<Blog>();
 
-    // Başlık örnekleri
     var titles = new List<string>
     {
         "Yazılım Geliştirme Sürecinde En İyi Pratikler",
@@ -175,7 +167,6 @@ public static class SeedData
         "Kendini Geliştirmenin 7 Etkili Yolu"
     };
 
-    // Blog görselleri için örnek URLler
     var imageUrls = new List<string>
     {
         "https://picsum.photos/id/0/800/450",
@@ -190,10 +181,8 @@ public static class SeedData
         "https://picsum.photos/id/90/800/450"
     };
 
-    // 50 blog oluştur
     for (int i = 0; i < 50; i++)
     {
-        // Blog içeriği için rastgele paragraflar oluştur
         var paragraphCount = random.Next(3, 7);
         var contentBuilder = new System.Text.StringBuilder();
 
@@ -208,13 +197,18 @@ public static class SeedData
             contentBuilder.Append("\n\n");
         }
 
-        // Rastgele kullanıcı ve kategori seç
+        if (users.Count == 0 || categories.Count == 0)
+        {
+            Console.WriteLine("Kullanıcı veya kategori listesi boş, blog oluşturulamıyor.");
+            return;
+        }
+
         var userId = users[random.Next(users.Count)].Id;
         var categoryId = categories[random.Next(categories.Count)].Id;
 
         var title = titles[i % titles.Count];
         var content = contentBuilder.ToString();
-        var imageUrl = imageUrls[random.Next(imageUrls.Count)];
+        var imageUrl = imageUrls[i % imageUrls.Count];
         var createdDate = DateTime.Now.AddDays(-random.Next(60));
 
         var blog = new Blog
@@ -225,8 +219,8 @@ public static class SeedData
             ImageUrl = imageUrl,
             UserId = userId,
             CategoryId = categoryId,
-            User = await context.Users.FindAsync(userId), // User referansını ekle
-            Category = await context.Categories.FindAsync(categoryId), // Category referansını ekle
+            User = await context.Users.FindAsync(userId), 
+            Category = await context.Categories.FindAsync(categoryId), 
             CreatedAt = createdDate,
             UpdatedAt = createdDate.AddHours(random.Next(1, 24)),
             ViewCount = random.Next(5, 1000),
@@ -238,17 +232,14 @@ public static class SeedData
 
     try
     {
-        // Her blog için ayrı ayrı işlem yapılır
         foreach (var blog in blogs)
         {
-            // Blog için User ve Category referanslarını veritabanından al
             blog.User = await context.Users.FindAsync(blog.UserId) ?? 
                 throw new InvalidOperationException($"Kullanıcı bulunamadı: {blog.UserId}");
             
             blog.Category = await context.Categories.FindAsync(blog.CategoryId) ?? 
                 throw new InvalidOperationException($"Kategori bulunamadı: {blog.CategoryId}");
             
-            // Her bir blog nesnesi eklenir
             context.Blogs.Add(blog);
         }
 
@@ -276,7 +267,6 @@ public static class SeedData
         {
             if (i == 0)
             {
-                // İlk kelimeyi büyük harfle başlat
                 var word = words[random.Next(words.Length)];
                 sentence.Append(char.ToUpper(word[0]) + word.Substring(1));
             }
@@ -302,7 +292,6 @@ public static class SeedData
     var random = new Random();
     var comments = new List<Comment>();
 
-    // Yorum içeriği örnekleri
     var commentTexts = new List<string>
     {
         "Harika bir yazı olmuş, teşekkür ederim.",
@@ -317,26 +306,23 @@ public static class SeedData
         "Kesinlikle katılıyorum, çok doğru tespitler."
     };
 
-    // Her blog için rastgele yorumlar oluştur
     foreach (var blog in blogs)
     {
-        // 0-5 arası rastgele yorum sayısı
         var commentCount = random.Next(15);
         
         for (int i = 0; i < commentCount; i++)
         {
-            // Kullanıcı ID'lerini kullanarak yorumlar oluştur
             var userId = users[random.Next(users.Count)].Id;
             var commentText = commentTexts[random.Next(commentTexts.Count)];
-            var createdDate = blog.CreatedAt.AddHours(random.Next(1, 24 * 30)); // Blog'dan sonraki 30 gün içinde
+            var createdDate = blog.CreatedAt.AddHours(random.Next(1, 24 * 30)); 
 
             var comment = new Comment
             {
                 Id = Guid.NewGuid(),
                 Content = commentText,
                 CreatedAt = createdDate,
-                UserId = userId,  // Sadece ID kullan
-                BlogId = blog.Id, // Sadece ID kullan
+                UserId = userId,  
+                BlogId = blog.Id, 
             };
 
             comments.Add(comment);

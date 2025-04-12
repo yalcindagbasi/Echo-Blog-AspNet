@@ -23,14 +23,15 @@ public class CommentRepository : ICommentRepository
 
     public async Task<Comment> AddCommentAsync(Comment comment)
     {
-        _context.Comments.Add(comment);
+        await _context.Comments.AddAsync(comment); 
         await _context.SaveChangesAsync();
         return comment;
     }
 
-    public async Task<Comment> GetCommentByIdAsync(Guid commentId)
+    public async Task<Comment?> GetCommentByIdAsync(Guid commentId)
     {
-        return await _context.Comments.FindAsync(commentId);
+        return await _context.Comments
+            .FirstOrDefaultAsync(c => c.Id == commentId);
     }
 
     public async Task DeleteCommentAsync(Comment comment)
@@ -47,6 +48,7 @@ public class CommentRepository : ICommentRepository
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
+
     public async Task<List<Comment>> GetAllCommentsAsync()
     {
         return await _context.Comments

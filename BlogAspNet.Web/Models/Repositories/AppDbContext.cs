@@ -18,12 +18,6 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Blog>()
-            .HasOne(b => b.User)
-            .WithMany(u => u.Blogs)
-            .HasForeignKey(b => b.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         modelBuilder.Entity<Blog>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -33,31 +27,44 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, Guid>
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+
+            entity.HasOne(b => b.User)
+                .WithMany(u => u.Blogs)
+                .HasForeignKey(b => b.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(b => b.Category)
+                .WithMany(c => c.Blogs)
+                .HasForeignKey(b => b.CategoryId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
-        modelBuilder.Entity<Blog>()
-            .HasOne(b => b.Category)
-            .WithMany(c => c.Blogs)
-            .HasForeignKey(b => b.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<Blog>()
-            .Property(b => b.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+        modelBuilder.Entity<Comment>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+            entity.Property(c => c.Content).HasMaxLength(1000).IsRequired();
+            entity.Property(c => c.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
 
-        modelBuilder.Entity<Blog>()
-            .Property(b => b.UpdatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
-        
-        modelBuilder.Entity<Comment>()
-            .HasOne(c => c.Blog)
-            .WithMany(b => b.Comments)
-            .HasForeignKey(c => c.BlogId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        modelBuilder.Entity<Comment>()
-            .HasOne(c => c.User)
-            .WithMany(u => u.Comments)
-            .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(c => c.Blog)
+                .WithMany(b => b.Comments)
+                .HasForeignKey(c => c.BlogId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(c => c.User)
+                .WithMany(u => u.Comments)
+                .HasForeignKey(c => c.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+            entity.Property(c => c.Name).HasMaxLength(100).IsRequired();
+        });
     }
+
 }

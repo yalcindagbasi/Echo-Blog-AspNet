@@ -61,7 +61,7 @@ public class UserController : Controller
         {
             Id = user.Id,
             Username = user.UserName,
-            Email = user.Email, // Email gelir ama değiştirilemez
+            Email = user.Email, 
             FullName = user.FullName,
             AboutMe = user.AboutMe,
             BirthDate = user.BirthDate ?? DateTime.Now,
@@ -80,11 +80,9 @@ public class UserController : Controller
             return View(model);
         }
 
-        // Email değişikliğini engelleme
         var user = await _userService.GetUserById(model.Id);
-        model.Email = user.Email; // Her zaman mevcut e-posta adresini kullan
+        model.Email = user.Email; 
 
-        // Profil fotoğrafı işlemleri
         if (model.ProfilePhotoFile != null)
         {
             var fileName = Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) + 

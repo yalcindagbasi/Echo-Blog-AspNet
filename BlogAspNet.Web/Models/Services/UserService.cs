@@ -225,7 +225,7 @@ public async Task<UserViewModel> GetUserViewModelAsync(AppUser user)
     {
         try
         {
-            // Önce kullanıcıya ait tüm yorumları sil
+            
             var userComments = await _commentService.GetUserCommentsAsync(user.Id);
 
             foreach (var comment in userComments)
@@ -233,7 +233,7 @@ public async Task<UserViewModel> GetUserViewModelAsync(AppUser user)
                 await _commentService.DeleteCommentAsync(comment.Id,user.Id);
             }
 
-            // Sonra kullanıcıyı sil
+            
             var result = await _userManager.DeleteAsync(user);
             return result.Succeeded;
         }

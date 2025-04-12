@@ -13,7 +13,7 @@ public class BlogEditViewModel
     public int CategoryId { get; set; }
     [ValidateNever] public SelectList CategoryList { get; set; } = null!;
     
-    // Yeni eklenen özellikler
+    
     public IFormFile? ImageFile { get; set; }
     public string? ImageUrlString { get; set; }
 }
