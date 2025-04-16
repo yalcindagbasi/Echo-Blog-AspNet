@@ -224,7 +224,6 @@ public static class SeedData
             CreatedAt = createdDate,
             UpdatedAt = createdDate.AddHours(random.Next(1, 24)),
             ViewCount = random.Next(5, 1000),
-            IsDeleted = false
         };
 
         blogs.Add(blog);

@@ -18,7 +18,6 @@ public class BlogRepository : IBlogRepository
         return await _context.Blogs
             .Include(b => b.User)
             .Include(b => b.Category)
-            .Where(b => !b.IsDeleted)
             .ToListAsync();
     }
 
@@ -27,7 +26,7 @@ public class BlogRepository : IBlogRepository
         return await _context.Blogs
             .Include(b => b.User)
             .Include(b => b.Category)
-            .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
+            .FirstOrDefaultAsync(b => b.Id == id);
     }
 
     public async Task AddBlogAsync(Blog blog)
@@ -44,9 +43,7 @@ public class BlogRepository : IBlogRepository
 
     public async Task DeleteBlogAsync(Blog blog)
     {
-        blog.IsDeleted = true;
-        blog.DeletedAt = DateTime.UtcNow;
-        _context.Blogs.Update(blog);
+        _context.Blogs.Remove(blog);
         await _context.SaveChangesAsync();
     }
 
@@ -55,7 +52,7 @@ public class BlogRepository : IBlogRepository
         return await _context.Blogs
             .Include(b => b.User)
             .Include(b => b.Category)
-            .Where(b => b.CategoryId == categoryId && !b.IsDeleted)
+            .Where(b => b.CategoryId == categoryId )
             .ToListAsync();
     }
 
@@ -64,7 +61,7 @@ public class BlogRepository : IBlogRepository
         return await _context.Blogs
             .Include(b => b.User)
             .Include(b => b.Category)
-            .Where(b => b.UserId == userId && !b.IsDeleted)
+            .Where(b => b.UserId == userId )
             .ToListAsync();
     }
 
@@ -78,8 +75,7 @@ public class BlogRepository : IBlogRepository
     {
         IQueryable<Blog> query = _context.Blogs
             .Include(b => b.User)
-            .Include(b => b.Category)
-            .Where(b => !b.IsDeleted);
+            .Include(b => b.Category);
 
         if (categoryId.HasValue && categoryId.Value > 0)
         {
@@ -121,7 +117,7 @@ public class BlogRepository : IBlogRepository
     public async Task IncrementViewCountAsync(Guid blogId)
     {
         var blog = await _context.Blogs.FindAsync(blogId);
-        if (blog != null && !blog.IsDeleted)
+        if (blog != null)
         {
             blog.ViewCount++;
             await _context.SaveChangesAsync();
@@ -133,7 +129,6 @@ public class BlogRepository : IBlogRepository
         return await _context.Blogs
             .Include(b => b.User)
             .Include(b => b.Category)
-            .Where(b => !b.IsDeleted)
             .OrderByDescending(b => b.ViewCount)
             .Take(count)
             .ToListAsync();

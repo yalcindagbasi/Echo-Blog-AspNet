@@ -56,7 +56,6 @@ public class BlogService : IBlogService
             User = user, 
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            IsDeleted = false
         };
 
         await _blogRepository.AddBlogAsync(newBlog);

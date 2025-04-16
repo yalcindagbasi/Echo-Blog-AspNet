@@ -81,7 +81,7 @@ public class AuthController(IUserService userService) : Controller
             {
                 return RedirectToAction("Index", "Home");
             }
-            ModelState.AddModelError("", "Geçersiz giriş.");
+            ModelState.AddModelError("", "Geçersiz e-posta veya şifre.");
         }
         return View(model);
     }

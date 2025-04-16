@@ -27,6 +27,7 @@ public class RegisterViewModel
     [DataType(DataType.Password)]
     [Display(Name = "Şifre")]
     public string Password { get; set; } = null!;
+    [Required(ErrorMessage = "Doğum tarihi alanı zorunludur.")]
     public DateTime BirthDate { get; set; }
     [StringLength(400)]
     public string? ProfilePhotoUrl { get; set; } 

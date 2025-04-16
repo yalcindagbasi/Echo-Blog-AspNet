@@ -26,7 +26,6 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, Guid>
             entity.Property(e => e.ImageUrl).HasMaxLength(400);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
-            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
 
             entity.HasOne(b => b.User)
                 .WithMany(u => u.Blogs)

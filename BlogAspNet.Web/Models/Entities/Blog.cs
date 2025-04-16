@@ -22,8 +22,6 @@ public class Blog
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     
-    public bool IsDeleted { get; set; } 
-    public DateTime? DeletedAt { get; set; }
 
     [Required] 
     public required Guid UserId { get; set; }

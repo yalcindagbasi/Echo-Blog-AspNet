@@ -1,76 +1,83 @@
 @model RegisterViewModel
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Kayıt Ol</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-light-amber text-center border-0 p-4">
+                    <h3 class="fw-bold text-brown mb-0">Kayıt Ol</h3>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form asp-action="Register" asp-controller="Auth" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
 
                         <div class="mb-3">
-                            <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
-                            <input asp-for="Username" class="form-control"/>
-                            <span asp-validation-for="Username" class="text-danger"></span>
+                            <label asp-for="Username" class="form-label fw-medium text-brown">Kullanıcı Adı</label>
+                            <input asp-for="Username" class="form-control border-amber-dark" placeholder="Kullanıcı adınız" />
+                            <span asp-validation-for="Username" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="FullName" class="form-label">Ad Soyad</label>
-                            <input asp-for="FullName" class="form-control"/>
-                            <span asp-validation-for="FullName" class="text-danger"></span>
+                            <label asp-for="FullName" class="form-label fw-medium text-brown">Ad Soyad</label>
+                            <input asp-for="FullName" class="form-control border-amber-dark" placeholder="Ad ve soyadınız" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label">E-posta</label>
-                            <input asp-for="Email" class="form-control"/>
-                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <label asp-for="Email" class="form-label fw-medium text-brown">E-posta</label>
+                            <input asp-for="Email" class="form-control border-amber-dark" placeholder="E-posta adresiniz" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Şifre</label>
-                            <input asp-for="Password" class="form-control" type="password"/>
-                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <label asp-for="Password" class="form-label fw-medium text-brown">Şifre</label>
+                            <input asp-for="Password" class="form-control border-amber-dark" type="password" placeholder="Şifreniz" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="BirthDate" class="form-label">Doğum Tarihi</label>
-                            <input asp-for="BirthDate" class="form-control" type="date"/>
-                            <span asp-validation-for="BirthDate" class="text-danger"></span>
+                            <label asp-for="BirthDate" class="form-label fw-medium text-brown">Doğum Tarihi</label>
+                            <input asp-for="BirthDate" class="form-control border-amber-dark" type="date" />
+                            <span asp-validation-for="BirthDate" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="AboutMe" class="form-label">Hakkımda</label>
-                            <textarea asp-for="AboutMe" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="AboutMe" class="text-danger"></span>
+                            <label asp-for="AboutMe" class="form-label fw-medium text-brown">Hakkımda</label>
+                            <textarea asp-for="AboutMe" class="form-control border-amber-dark" rows="3" placeholder="Kendiniz hakkında kısa bir açıklama"></textarea>
+                            <span asp-validation-for="AboutMe" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Profil Fotoğrafı</label>
+                            <label class="form-label fw-medium text-brown">Profil Fotoğrafı</label>
                             <div class="form-check form-check-inline mb-2">
-                                <input class="form-check-input" type="radio" name="imageSourceType" id="imageUpload" value="upload" checked>
-                                <label class="form-check-label" for="imageUpload">Dosya Yükle</label>
+                                <input class="form-check-input border-amber-dark" type="radio" name="imageSourceType" id="imageUpload" value="upload" checked>
+                                <label class="form-check-label text-muted" for="imageUpload">Dosya Yükle</label>
                             </div>
                             <div class="form-check form-check-inline mb-2">
-                                <input class="form-check-input" type="radio" name="imageSourceType" id="imageUrl" value="url">
-                                <label class="form-check-label" for="imageUrl">URL Kullan</label>
+                                <input class="form-check-input border-amber-dark" type="radio" name="imageSourceType" id="imageUrl" value="url">
+                                <label class="form-check-label text-muted" for="imageUrl">URL Kullan</label>
                             </div>
 
                             <div id="uploadSection">
-                                <input type="file" name="ProfilePhotoFile" class="form-control" accept="image/*" />
+                                <input type="file" name="ProfilePhotoFile" class="form-control border-amber-dark" accept="image/*" />
                             </div>
                             <div id="urlSection" style="display:none;">
-                                <input type="text" class="form-control" name="ProfilePhotoUrl" placeholder="Profil fotoğrafı URL'si" />
+                                <input type="text" class="form-control border-amber-dark" name="ProfilePhotoUrl" placeholder="Profil fotoğrafı URL'si" />
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <a asp-action="Login" asp-controller="Auth" class="btn btn-secondary me-md-2">Giriş Yap</a>
-                            <button type="submit" class="btn btn-primary">Kayıt Ol</button>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-amber rounded-pill py-2 fw-medium shadow-sm">
+                                <i class="bi bi-person-plus me-2"></i>Kayıt Ol
+                            </button>
                         </div>
                     </form>
+                </div>
+                <div class="card-footer bg-white text-center border-0 p-4">
+                    <p class="mb-0 text-muted">
+                        Zaten bir hesabınız var mı?
+                        <a asp-controller="Auth" asp-action="Login" class="text-amber text-decoration-none fw-medium">Giriş Yap</a>
+                    </p>
                 </div>
             </div>
         </div>
