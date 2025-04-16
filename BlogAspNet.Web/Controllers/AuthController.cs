@@ -17,26 +17,43 @@ public class AuthController(IUserService userService) : Controller
         return View();
     }
     [HttpPost]
-    [HttpPost]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
         if (!ModelState.IsValid)
         {
             return View(model);
         }
-    
-        if(await userService.IsEmailExist(model.Email))
+
+        if (await userService.IsEmailExist(model.Email))
         {
-            ModelState.AddModelError("Email","Bu e-posta adresi zaten kayıtlı.");
+            ModelState.AddModelError("Email", "Bu e-posta adresi zaten kayıtlı.");
             return View(model);
         }
-    
-        if(await userService.IsUsernameExist(model.Username))
+
+        if (await userService.IsUsernameExist(model.Username))
         {
-            ModelState.AddModelError("Username","Bu kullanıcı adı zaten kayıtlı.");
+            ModelState.AddModelError("Username", "Bu kullanıcı adı zaten kayıtlı.");
             return View(model);
         }
-    
+
+        if (model.Password.Length < 6)
+        {
+            ModelState.AddModelError("Password", "Şifre en az 6 karakter uzunluğunda olmalıdır.");
+            return View(model);
+        }
+
+        if (!model.Password.Any(char.IsUpper))
+        {
+            ModelState.AddModelError("Password", "Şifre en az bir büyük harf içermelidir.");
+            return View(model);
+        }
+
+        if (!model.Password.Any(char.IsDigit))
+        {
+            ModelState.AddModelError("Password", "Şifre en az bir rakam içermelidir.");
+            return View(model);
+        }
+
         var imageSourceType = Request.Form["imageSourceType"].ToString();
         if (imageSourceType == "upload" && model.ProfilePhotoFile != null)
         {
@@ -51,14 +68,14 @@ public class AuthController(IUserService userService) : Controller
         {
             model.ProfilePhotoUrl = "/images/profiles/default-profile.png";
         }
-    
+
         var result = await userService.RegisterUserAsync(model);
         if (result)
         {
             return RedirectToAction("Login");
         }
-    
-        ModelState.AddModelError("","Kullanıcı oluşturulamadı.");
+
+        ModelState.AddModelError("", "Kullanıcı oluşturulamadı.");
         return View(model);
     }
     [HttpGet]
